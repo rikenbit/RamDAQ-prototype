@@ -74,11 +74,11 @@ minReadLength = 36
 ```
 cd $HOME/RamDAQ_example
 
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.02_ramdaQC_SE_fastqmcf_fastQC.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.03_ramdaQC_SE_hisat2.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.07_ramdaQC_SE_createnotebook.html
 ```
 
 Finally, you can get a QC report in html format under `$HOME/RamDAQ_example/output_RamDA_human_NSC/human_NSC_001/${run_id}_notebook_SE_unstranded.html`.
@@ -92,7 +92,7 @@ Finally, you can get a QC report in html format under `$HOME/RamDAQ_example/outp
 ### 2. Preparing input FASTQ files
 
 - Naming convention: The extensions must be `.fastq.gz`.
-- FASTQ files must be located in a single directory: `my_favorite_path/output_${project_id}/${run_id}/01_fastq_files` (`my_favorite_path` can be any path)
+- FASTQ files must be located in a single directory: `my_favorite_path/output_${project_id}/${run_id}/01_fastq_files` (*`my_favorite_path` can be any path!*)
 
 #### Converting FASTQ files from a BCL file
 See [tutorial on bcl2fastq](tutorials/bcl2fastq.md).
@@ -110,8 +110,8 @@ The following section in `*.config` file should be changed.
 ### 4-1. Running RamDAQ basic pipeline on single-end (SE) data
 
 ```
-# Move to the directory where your FASTQ files are contained in `XXXXXX/output_${project_id}/${run_id}/01_fastq_files`
-cd XXXXXX
+# Move to the directory where your FASTQ files are contained in `my_favorite_path/output_${project_id}/${run_id}/01_fastq_files`
+cd my_favorite_path
 
 # Copy a config file (The example here is in case of SE)
 cp ~/RamDAQ/RamDAQ_SE_unstranded_human.config .
@@ -119,23 +119,23 @@ cp ~/RamDAQ/RamDAQ_SE_unstranded_human.config .
 # Rewrite RamDAQ_SE_unstranded_human.config (See instruction above)
 
 # Run RamDAQ pipeline
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.02_ramdaQC_SE_fastqmcf_fastQC.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.03_ramdaQC_SE_hisat2.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.06_ramdaQC_SE_featurecounts.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.07_ramdaQC_SE_createnotebook.html
 ```
 
-The output files are save in `XXXXXX/output_${project_id}`.
+The output files are save in `my_favorite_path/output_${project_id}`.
 
 ### 4-2. Running RamDAQ basic pipeline on paired-end (PE) data
 
 ```
 # Make a directory with your favorite name
-mkdir XXXXXX
+mkdir my_favorite_path
 
 # Move into the directory
-cd XXXXXX
+cd my_favorite_path
 
 # Copy a config file (The example here is in case of PE)
 cp ~/RamDAQ/ramdaQC_PE_unstranded.config .
@@ -143,13 +143,13 @@ cp ~/RamDAQ/ramdaQC_PE_unstranded.config .
 # Modify ramdaQC_PE_unstranded.config (See instruction above)
 
 # Run RamDAQ pipeline
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/02_ramdaQC_PE_fastqmcf_fastQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/03_ramdaQC_PE_hisat2.nf -c ramdaQC_PE_unstranded.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/04_ramdaQC_PE_RSeQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/06_ramdaQC_PE_featurecounts.nf -c ramdaQC_PE_unstranded.config -resume -with-report
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/07_ramdaQC_PE_createnotebook.nf -c ramdaQC_PE_unstranded.config -resume -with-report
+~/bin/nextflow run ~/bin/RamDAQ/QC_PE/02_ramdaQC_PE_fastqmcf_fastQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.2_ramdaQC_PE_fastqmcf_fastQC.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_PE/03_ramdaQC_PE_hisat2.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.3_ramdaQC_PE_hisat2.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_PE/04_ramdaQC_PE_RSeQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.4_ramdaQC_PE_RSeQC.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_PE/06_ramdaQC_PE_featurecounts.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.6_ramdaQC_PE_featurecounts.html
+~/bin/nextflow run ~/bin/RamDAQ/QC_PE/07_ramdaQC_PE_createnotebook.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.7_ramdaQC_PE_createnotebook.html
 ```
-The output files are save in `XXXXXX/output_${project_id}`.
+The output files are save in `my_favorite_path/output_${project_id}`.
 
 
 ## What occurs in RamDAQ pipeline
