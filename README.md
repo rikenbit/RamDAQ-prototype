@@ -92,7 +92,7 @@ Finally, you can get a QC report in html format under `$HOME/RamDAQ_example/outp
 ### 2. Preparing input FASTQ files
 
 - Naming convention: The extensions must be `.fastq.gz`.
-- FASTQ files must be located in a single directory: `XXXXXX/output_${project_id}/${run_id}/01_fastq_files` (XXXXXX is any path)
+- FASTQ files must be located in a single directory: `my_favorite_path/output_${project_id}/${run_id}/01_fastq_files` (`my_favorite_path` can be any path)
 
 #### Converting FASTQ files from a BCL file
 See [tutorial on bcl2fastq](tutorials/bcl2fastq.md).
