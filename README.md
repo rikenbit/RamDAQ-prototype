@@ -31,7 +31,7 @@ wget -qO- https://get.nextflow.io | bash
 
 ```
 cd
-git clone rikenbit/RamDAQ
+git clone https://github.com/rikenbit/RamDAQ.git
 ```
 
 ### 4. Downloading example FASTQ files
