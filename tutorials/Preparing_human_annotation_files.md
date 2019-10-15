@@ -61,7 +61,7 @@ gunzip gencode.v32.primary_assembly.annotation.gtf.gz
 ```
 cd $HOME/annotations/human
 less gencode.v32.primary_assembly.annotation.gtf | grep chrM > gencode.v32.primary_assembly.annotation.mt.gtf
-less gencode.v32.primary_assembly.annotation.gtf | grep Hist > gencode.v32.primary_assembly.annotation.histone.gtf
+less gencode.v32.primary_assembly.annotation.gtf | grep HIST > gencode.v32.primary_assembly.annotation.histone.gtf
 ```
 
 
