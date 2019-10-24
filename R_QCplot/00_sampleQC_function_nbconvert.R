@@ -366,4 +366,23 @@ ggplot_2D <- function(dset, x, y, title, celltype, outname, label=F) {
   
 }
 
+create_pca_tsne_umap_mode <- function(countdata, perplexity, mode, local_connectivity=1.0, n_neighbors=15){
+
+  if (mode=="pca"){
+    ### pca
+    data_pca = prcomp(t(countdata), scale = FALSE, center = TRUE)
+    data_pca_df = as.data.frame(data_pca$x)
+    return(list(data=data_pca, data_df=data_pca_df))
+  } else if (mode=="tsne") {
+    ### tSNE
+    data_tsne = Rtsne(t(countdata), dims=2, perplexity=perplexity)
+    data_tsne_df = as.data.frame(data_tsne$Y)
+    return(list(data=data_tsne, data_df=data_tsne_df))
+  } else {
+    ### UMAP
+    data_umap = umap(t(countdata), local_connectivity=local_connectivity, n_neighbors=n_neighbors)
+    data_umap_df = as.data.frame(data_umap$layout)
+    return(list(data=data_umap, data_df=data_umap_df))
+  }
+}
 
