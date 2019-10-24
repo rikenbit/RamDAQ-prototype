@@ -3,6 +3,8 @@ RamDAQ is a computational pipeline for quality control (QC) of RamDA-seq experim
 
 RamDA-seq is a single-cell total RNA sequencing method. Publication is [here](https://doi.org/10.1038/s41467-018-02866-0). The detailed protocol is [here](https://bit.riken.jp/protocols/ramda-seq/) and [kit is available from Toyobo](https://www.toyobo-global.com/news/2019/release_105.html).
 
+RamDAQ excutes preprocessing and analysis steps on RamDA-seq data and generates a QC report (See this [example](https://nbviewer.jupyter.org/github/rikenbit/RamDAQ/blob/master/examples/RamDAQ_report_SE_humanNSC_sample.ipynb)).
+
 <img src="img/top-image.png" width="800" />
 
 ## Requirements
@@ -29,7 +31,7 @@ wget -qO- https://get.nextflow.io | bash
 
 ```
 cd
-git clone rikenbit/RamDAQ
+git clone https://github.com/rikenbit/RamDAQ.git
 ```
 
 ### 4. Downloading example FASTQ files
