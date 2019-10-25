@@ -38,7 +38,7 @@ git clone https://github.com/rikenbit/RamDAQ.git
 ```
 cd $HOME/RamDAQ/examples/download_fastq_files
 ~/bin/nextflow run download-fastq.nf -c download-fastq.config
-mkdir -p $HOME/RamDAQ_example/output_RamDA_NSC/human_NSC_001
+mkdir -p $HOME/RamDAQ_example/output_RamDA_human_NSC/human_NSC_001
 mv output_download_fastq $HOME/RamDAQ_example/output_RamDA_human_NSC/human_NSC_001/01_fastq_files
 ```
 
