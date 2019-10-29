@@ -153,6 +153,10 @@ cp ~/RamDAQ/ramdaQC_PE_unstranded.config .
 ```
 The output files are save in `my_favorite_path/output_${project_id}`.
 
+### Exclude 'blacklist' cells/samples from notebook reports (Optional)
+If you'd like to exclude some uninterested cells/samples (e.g., RT(-) cells or blanks samples) from notebook reports, all you need is to prepare a text file named `exclude_samplelist.txt` under the `${run_id}/` directory.
+
+`exclude_samplelist.txt` is a list of cell/sample names to be excluded from notebook reports, where each line contains one cell/sample name/id.
 
 ## What occurs in RamDAQ pipeline
 ### RamDAQ basic pipeline
