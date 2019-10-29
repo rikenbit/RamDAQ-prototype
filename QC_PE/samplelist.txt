@@ -1,0 +1,4 @@
+Sample_ID	Fastq1	Fastq2
+cell001	fastq_dir/001_R1.fastq.gz	fastq_dir/001_R2.fastq.gz
+cell002	fastq_dir/002_R1.fastq.gz	fastq_dir/002_R2.fastq.gz
+cell003	fastq_dir/003_R1.fastq.gz	fastq_dir/003_R2.fastq.gz
