@@ -96,6 +96,10 @@ Finally, you can get a QC report in html format under `$HOME/RamDAQ_example/outp
 - Naming convention: The extensions must be `.fastq.gz`.
 - FASTQ files must be located in a single directory: `my_favorite_path/output_${project_id}/${run_id}/01_fastq_files` (*`my_favorite_path` can be any path!*)
 
+#### For PE data
+For PE FASTQ files, there exist various file naming conventions (e.g., `*_R1.fastq.gz` or `*.R1.fastq.gz`), making it difficult to parse file names. To avoid this diffucluty, users need to prepare a TSV-formatted file called 'samplelist.txt' (In the confing PE data, you will see `fastq_filelist = 'samplelist.txt'`). The 'samplelist.txt' is a TSV-formatted file with a header line consists of three columns (Sample_ID, Fastq1, Fastq2) and contains a FASTQ file pair (Read1 and Read2) in each line. See [example](QC_PE/samplelist.txt).
+
+
 #### Converting FASTQ files from a BCL file
 See [tutorial on bcl2fastq](tutorials/bcl2fastq.md).
 
