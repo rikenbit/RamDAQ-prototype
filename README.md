@@ -58,7 +58,7 @@ cp $HOME/RamDAQ/QC_SE/RamDAQ_SE_unstranded_human.config .
 Then, modify `RamDAQ_SE_unstranded_human.config` using your favorite as follows:
 
 ```
-project_id = "RamDA_human_NSC"`
+project_id = "RamDA_human_NSC"
 ```
 ```
 run_ids = [
