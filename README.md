@@ -52,7 +52,7 @@ See [Preparing human annotation files](tutorials/Preparing_human_annotation_file
 First, copy config file to the directory.
 ```
 cd $HOME/RamDAQ_example
-cp ~/RamDAQ/RamDAQ_SE_unstranded_human.config .
+cp $HOME/RamDAQ/QC_SE/RamDAQ_SE_unstranded_human.config .
 ```
 
 Then, modify `RamDAQ_SE_unstranded_human.config` using your favorite as follows:
