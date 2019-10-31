@@ -66,7 +66,7 @@ run_ids = [
 	    ]
 ```
 ```
-maxreadLength = 50
+maxReadLength = 50
 minReadLength = 36
 ```
 
