@@ -192,7 +192,7 @@ If you'd like to exclude some uninterested cells/samples (e.g., RT(-) cells or b
     - 02_ramdaQC_SE_fastqmcf_fastQC: 5m 39s
     - 03_ramdaQC_SE_hisat2: 25m 34s
     - 04_ramdaQC_SE_RSeQC: 10h 22m 7s
-        - 1 file takes 3hours, you can estimate this process by CPU number.
+        - In this example 1 file takes 3hours, you can estimate this process by CPU number.
     - 06_ramdaQC_SE_featurecounts: 7m 49s
  - Memory usage
     - up to ~6 GB
