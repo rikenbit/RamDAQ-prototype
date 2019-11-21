@@ -195,6 +195,8 @@ If you'd like to exclude some uninterested cells/samples (e.g., RT(-) cells or b
     - 06_ramdaQC_SE_featurecounts: 7m 49s
  - Memory usage
     - up to ~6 GB
+ - Storage
+    - around 300GB
 
 ## Contact
 - Issues
