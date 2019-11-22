@@ -79,7 +79,7 @@ cd $HOME/RamDAQ_example
 ~/bin/nextflow run ~/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.02_ramdaQC_SE_fastqmcf_fastQC.html
 ~/bin/nextflow run ~/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.03_ramdaQC_SE_hisat2.html
 ~/bin/nextflow run ~/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
-~/bin/nextflow run ~/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.06_ramdaQC_SE_RSeQC.html
 ~/bin/nextflow run ~/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.07_ramdaQC_SE_createnotebook.html
 ```
 
