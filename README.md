@@ -66,7 +66,7 @@ run_ids = [
 	    ]
 ```
 ```
-maxreadLength = 50
+maxReadLength = 50
 minReadLength = 36
 ```
 
@@ -76,11 +76,11 @@ minReadLength = 36
 ```
 cd $HOME/RamDAQ_example
 
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.02_ramdaQC_SE_fastqmcf_fastQC.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.03_ramdaQC_SE_hisat2.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.07_ramdaQC_SE_createnotebook.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.02_ramdaQC_SE_fastqmcf_fastQC.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.03_ramdaQC_SE_hisat2.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.06_ramdaQC_SE_RSeQC.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.07_ramdaQC_SE_createnotebook.html
 ```
 
 Finally, you can get a QC report in html format under `$HOME/RamDAQ_example/output_RamDA_human_NSC/human_NSC_001/${run_id}_notebook_SE_unstranded.html`.
@@ -125,11 +125,11 @@ cp ~/RamDAQ/RamDAQ_SE_unstranded_human.config .
 # Rewrite RamDAQ_SE_unstranded_human.config (See instruction above)
 
 # Run RamDAQ pipeline
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.02_ramdaQC_SE_fastqmcf_fastQC.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.03_ramdaQC_SE_hisat2.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.06_ramdaQC_SE_featurecounts.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.07_ramdaQC_SE_createnotebook.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/02_ramdaQC_SE_fastqmcf_fastQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.02_ramdaQC_SE_fastqmcf_fastQC.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/03_ramdaQC_SE_hisat2.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.03_ramdaQC_SE_hisat2.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/04_ramdaQC_SE_RSeQC.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.04_ramdaQC_SE_RSeQC.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/06_ramdaQC_SE_featurecounts.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.06_ramdaQC_SE_featurecounts.html
+~/bin/nextflow run ~/RamDAQ/QC_SE/07_ramdaQC_SE_createnotebook.nf -c RamDAQ_SE_unstranded_human.config -resume -with-report log.07_ramdaQC_SE_createnotebook.html
 ```
 
 The output files are save in `my_favorite_path/output_${project_id}`.
@@ -149,11 +149,11 @@ cp ~/RamDAQ/ramdaQC_PE_unstranded.config .
 # Modify ramdaQC_PE_unstranded.config (See instruction above)
 
 # Run RamDAQ pipeline
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/02_ramdaQC_PE_fastqmcf_fastQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.2_ramdaQC_PE_fastqmcf_fastQC.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/03_ramdaQC_PE_hisat2.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.3_ramdaQC_PE_hisat2.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/04_ramdaQC_PE_RSeQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.4_ramdaQC_PE_RSeQC.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/06_ramdaQC_PE_featurecounts.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.6_ramdaQC_PE_featurecounts.html
-~/bin/nextflow run ~/bin/RamDAQ/QC_PE/07_ramdaQC_PE_createnotebook.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.7_ramdaQC_PE_createnotebook.html
+~/bin/nextflow run ~/RamDAQ/QC_PE/02_ramdaQC_PE_fastqmcf_fastQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.2_ramdaQC_PE_fastqmcf_fastQC.html
+~/bin/nextflow run ~/RamDAQ/QC_PE/03_ramdaQC_PE_hisat2.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.3_ramdaQC_PE_hisat2.html
+~/bin/nextflow run ~/RamDAQ/QC_PE/04_ramdaQC_PE_RSeQC.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.4_ramdaQC_PE_RSeQC.html
+~/bin/nextflow run ~/RamDAQ/QC_PE/06_ramdaQC_PE_featurecounts.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.6_ramdaQC_PE_featurecounts.html
+~/bin/nextflow run ~/RamDAQ/QC_PE/07_ramdaQC_PE_createnotebook.nf -c ramdaQC_PE_unstranded.config -resume -with-report log.7_ramdaQC_PE_createnotebook.html
 ```
 The output files are save in `my_favorite_path/output_${project_id}`.
 
@@ -192,9 +192,12 @@ If you'd like to exclude some uninterested cells/samples (e.g., RT(-) cells or b
     - 02_ramdaQC_SE_fastqmcf_fastQC: 5m 39s
     - 03_ramdaQC_SE_hisat2: 25m 34s
     - 04_ramdaQC_SE_RSeQC: 10h 22m 7s
+        - In this example 1 file takes 3hours, you can estimate this process by CPU number.
     - 06_ramdaQC_SE_featurecounts: 7m 49s
  - Memory usage
     - up to ~6 GB
+ - Storage
+    - around 300GB
 
 ## Contact
 - Issues
