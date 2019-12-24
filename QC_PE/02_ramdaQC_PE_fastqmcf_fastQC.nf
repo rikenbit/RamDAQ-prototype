@@ -42,7 +42,7 @@ process run_fastQC_bef {
 
     input:
     val proj_id
-    set run_id, fastq_L_name, fastq_R_name, fastq_L, fastq_R, fastq_L_basename, fastq_R_basename, option_name, option, adapter_name, adapterfile from fastqc_bef_conditions
+    set run_id, fastq_L_name, fastq_R_name, file(fastq_L), file(fastq_R), fastq_L_basename, fastq_R_basename, option_name, option, adapter_name, file(adapterfile) from fastqc_bef_conditions
 
     output:
     set run_id, file("${fastq_L_basename}_fastqc"), file("${fastq_R_basename}_fastqc") into fastqc_bef_output
@@ -63,19 +63,17 @@ process collect_fastQC_bef_summary {
     input:
     val proj_id
     set run_id, fastq_L_dir, fastq_R_dir from fastqc_bef_output.groupTuple()
+    path script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_fastqc_summary.py"
 
     output:
     file "*.txt"
 
     script:
-    def script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_fastqc_summary.py"
-
     """
     python $script_path $PWD/output_$proj_id/$run_id/03_fastQC_beforeTrimming summary_beforetrim_fastQC_result
     """
 
 }
-
 
 process run_fastqmcf  {
 
@@ -86,14 +84,12 @@ process run_fastqmcf  {
 
     input:
     val proj_id
-    set run_id, fastq_L_name, fastq_R_name, fastq_L, fastq_R, fastq_L_basename, fastq_R_basename, option_name, option, adapter_name, adapterfile from fastqmcf_conditions
+    set run_id, fastq_L_name, fastq_R_name, file(fastq_L), file(fastq_R), fastq_L_basename, fastq_R_basename, option_name, option, adapter_name, file(adapterfile) from fastqmcf_conditions
 
     output:
     set run_id, fastq_L_name, fastq_R_name, file("${fastq_L_name}_trim.fastq.gz"), file("${fastq_R_name}_trim.fastq.gz") into fastqmcf_output
 
     script:
-    def output_dir = "output_${proj_id}/02_fastqmcf"
-
     """
     fastq-mcf $adapterfile $fastq_L $fastq_R -o ${fastq_L_name}_trim.fastq -o ${fastq_R_name}_trim.fastq $option && gzip ${fastq_L_name}_trim.fastq && gzip ${fastq_R_name}_trim.fastq
     """
@@ -110,7 +106,7 @@ process run_fastQC {
 
     input:
     val proj_id
-    set run_id, fastq_L_name, fastq_R_name, fastq_L_trim, fastq_R_trim from fastqmcf_output
+    set run_id, fastq_L_name, fastq_R_name, file(fastq_L_trim), file(fastq_R_trim) from fastqmcf_output
  
     output:
     set run_id, file("${fastq_L_name}_trim_fastqc"), file("${fastq_R_name}_trim_fastqc") into fastqc_output
@@ -132,13 +128,12 @@ process collect_fastQC_summary {
     input:
     val proj_id
     set run_id, fastq_L_dir, fastq_R_dir from fastqc_output.groupTuple()
+    path script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_fastqc_summary.py"    
 
     output:
     file "*.txt"
 
     script:
-    def script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_fastqc_summary.py"    
- 
     """
     python $script_path $PWD/output_$proj_id/$run_id/03_fastQC summary_fastQC_result
     """

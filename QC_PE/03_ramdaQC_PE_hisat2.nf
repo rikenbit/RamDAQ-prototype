@@ -10,15 +10,17 @@ Channel
     .into{run_ids; run_ids_;}
 
 fastq_files = Channel
-    .fromFilePairs("output_" + params.project_id + "/**/*_{R1,R2}_trim.fastq.gz")
-    .map{[file(it[1][0]).parent.toString().replaceAll('/02_fastqmcf','').split('/')[file(it[1][0]).parent.toString().replaceAll('/02_fastqmcf','').split('/').length - 1], file(it[1][0]).baseName.replaceAll('.fastq',''), file(it[1][1]).baseName.replaceAll('.fastq',''), file(it[1][0]).baseName.replaceAll('_R1_trim.fastq',''), it[1][0], it[1][1]]}
+    .fromFilePairs("output_" + params.project_id + "/**/*_{R1,R2}_trim.fastq.gz", flat: true) { file -> file.name.replaceAll(/_R1|_R2/,'').replaceAll('_trim', '').replaceAll('.fastq.gz', '') }
+    .map{[file(file(it[1]).parent.toString().replaceAll('/02_fastqmcf','')).name, it[0], it[1], it[2]]}
 
 fastq_files
     .into{
+        fastq_files_test
         fastq_files_input
         fastq_files_to_count
     }
- 
+
+//fastq_files_test.println()
 
 hisat2_options = Channel
         .from(params.hisat2_condition)
@@ -30,9 +32,11 @@ hisat2_strandedness = Channel
 
 hisat2_index = Channel
         .from(params.hisat2_index)
-        .map{ [it[0], file(it[1])] }
+        .map{ [it[0], it[1], file(it[1]+"*")] }
 
-ref_chrsize = params.ref_chrsize
+ref_chrsize = Channel
+        .from(params.ref_chrsize)
+        .map{ [it[0], file(it[1])] }
 
 hisat2_conditions = fastq_files_input
     .combine(hisat2_options)
@@ -53,15 +57,15 @@ process run_hisat2  {
 
     input:
     val proj_id
-    set run_id, fastq_L_name, fastq_R_name, fastq_name, fastq_L, fastq_R, option_name, option, strandedness_name, strandedness, index_name, index, chrom_size, pipeline_class from hisat2_conditions
+    set run_id, fastq_name, file(fastq_L), file(fastq_R), option_name, option, strandedness_name, strandedness, index_name, index, file(index_files), chrom_size, file(chrom_size_file), pipeline_class from hisat2_conditions
+    path scripts_dir from workflow.scriptFile.parent.parent + "/bamtools_scripts"
 
     output:
-    set pipeline_class, run_id, fastq_name, file("*.bam"), chrom_size into hisat2_output
+    set pipeline_class, run_id, fastq_name, file("*.bam"), file("*.bai"), file(chrom_size_file) into hisat2_output
     file "*.bai"
     file "*.bam" into hisat2_output_to_count
 
     script:
-    def scripts_dir = workflow.scriptFile.parent.parent + "/bamtools_scripts"
 
     if( pipeline_class == 'stranded' )
         """
@@ -97,7 +101,7 @@ process run_bam2wig  {
 
     input:
     val proj_id
-    set pipeline_class, run_id, fastq_name, bam_files, chrom_size from hisat2_output
+    set pipeline_class, run_id, fastq_name, file(bam_files), file(bai_files), file(chrom_size) from hisat2_output
 
     output:
     file "*.bw" into bam2wig_output_to_count

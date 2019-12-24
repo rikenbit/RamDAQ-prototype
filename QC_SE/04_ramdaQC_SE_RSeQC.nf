@@ -10,18 +10,20 @@ Channel
     .into{run_ids; run_ids_;}
 
 bam_files = Channel
-        .fromPath("output_" + params.project_id + "/**/04_hisat2/*.bam")
-        .map { file -> tuple(file.parent.toString().replaceAll('/04_hisat2','').split('/')[file.parent.toString().replaceAll('/04_hisat2','').split('/').length - 1], file.baseName.replaceAll('_trim', ''), file.baseName.toString().replaceAll('_trim', '').split('\\.')[0], file.baseName.toString().replaceAll('_trim', '').split('\\.')[1], file) }
+    .fromFilePairs("output_" + params.project_id + "/**/04_hisat2/*.{bam,bai}", flat: true) { file -> file.name.replaceAll(/.bam|.bai$/,'').replaceAll('_trim', '').replaceAll('.sort', '') }
+    .map {[file(file(it[1]).parent.toString().replaceAll('/04_hisat2','')).name, it[0], file(it[1]), file(it[2])]}
 
 bam_files
     .into{
         bam_files_input
         bam_files_to_count
+        bam_tmp
     }
+
+bam_tmp.println()
 
 bam_files_sortcount = Channel
         .fromPath("output_" + params.project_id + "/**/04_hisat2/*.sort.bam")
-        .map { file -> tuple(file.parent.toString().replaceAll('/04_hisat2','').split('/')[file.parent.toString().replaceAll('/04_hisat2','').split('/').length - 1], file.baseName.replaceAll('_trim', ''), file.baseName.toString().replaceAll('_trim', '').split('\\.')[0], file) }
 
 ref_bed = Channel
         .from(params.ref_beds)
@@ -42,10 +44,10 @@ process run_RSeQC_readDist  {
     
     input:
     val proj_id
-    set run_id, bam_name, sample_name, strand_option, bam_file, bed_name, bed_file, pipeline_class from RSeQC_conditions
+    set run_id, bam_name, file(bam_file), file(bai_file), bed_name, file(bed_file), pipeline_class from RSeQC_conditions
 
     output:
-    set run_id, pipeline_class, bam_name, sample_name, strand_option, bam_file, bed_name, bed_file, file("*_readdist.txt") into readdist_output
+    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file("*_readdist.txt") into readdist_output
     file "*_readdist.txt" into readDist_output_to_count
 
     script:
@@ -64,10 +66,10 @@ process run_RSeQC_geneBC  {
     
     input:
     val proj_id
-    set run_id, pipeline_class, bam_name, sample_name, strand_option, bam_file, bed_name, bed_file, readdist_file from readdist_output
+    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file(readdist_file) from readdist_output
 
     output:
-    set run_id, pipeline_class, strand_option, bam_name, bam_file, bed_file, readdist_file, file("${bam_name}.geneBodyCoverage.txt") into genebc_output
+    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file(readdist_file), file("${bam_name}.geneBodyCoverage.txt")     into genebc_output
     file "*.geneBodyCoverage.r"
     file "*.geneBodyCoverage.txt" into geneBC_output_to_count
 
@@ -87,10 +89,10 @@ process run_RSeQC_inferexp  {
 
     input:
     val proj_id
-    set run_id, pipeline_class, strand_option, bam_name, bam_file, bed_file, readdist_file, geneBC_file from genebc_output
+    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file(readdist_file), file(geneBC_file) from genebc_output
 
     output:
-    set run_id, pipeline_class, strand_option, file("*.sort.inferexp.txt") into inferexp_output
+    set run_id, pipeline_class, file("*.inferexp.txt") into inferexp_output
     file "*.inferexp.txt" into inferexp_output_to_count
 
     when:
@@ -112,15 +114,16 @@ process collect_RSeQC_summary {
     
     input:
     val proj_id
-    set run_id, pipeline_class, strand_option, infer_file from inferexp_output.groupTuple()
+    set run_id, pipeline_class, file(infer_file) from inferexp_output.groupTuple()
+
+    path readdist_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_ReadDist_summary.py"
+    path genebc_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_geneBC_summary.py"
+    path infer_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_inferexperiment_summary.py"
 
     output:
     file "*.txt"
 
     script:
-    def readdist_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_ReadDist_summary.py"
-    def genebc_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_geneBC_summary.py"
-    def infer_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_inferexperiment_summary.py"
 
     if( pipeline_class[0] == 'stranded' )
 
@@ -149,8 +152,8 @@ process collect_RSeQC_summary {
 }
 
 // Check number of files with >0 byte file size
-n_bam = bam_files_to_count.count {it[4].size() > 0}.getVal()
-n_bam_sort = bam_files_sortcount.count {it[3].size() > 0}.getVal()
+n_bam = bam_files_to_count.count {it[3].size() > 0}.getVal()
+n_bam_sort = bam_files_sortcount.count {it.size() > 0}.getVal()
 n_readDist_output = readDist_output_to_count.count {it.size() > 0}.getVal()
 n_geneBC_output = geneBC_output_to_count.count {it.size() > 0}.getVal()
 n_inferexp_output = inferexp_output_to_count.count {it.size() > 0}.getVal()

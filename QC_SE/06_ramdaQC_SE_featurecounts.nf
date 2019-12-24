@@ -10,8 +10,7 @@ Channel
 
 bam_files = Channel
         .fromPath("output_" + params.project_id + "/**/04_hisat2/*_trim.sort.bam")
-        .map { file -> tuple(file.parent.toString().replaceAll('/04_hisat2','').split('/')[file.parent.toString().replaceAll('/04_hisat2','').split('/').length - 1], file.baseName.replaceAll('_trim.sort', ''), file) }
-
+        .map { [file(file(it).parent.toString().replaceAll('/04_hisat2','')).name, it.baseName.replaceAll('_trim', '').replaceAll('.sort', ''), it]}
 
 bam_files
     .into{
@@ -83,13 +82,13 @@ process collect_featurecounts_summary {
     input:
     val proj_id
     set run_id, gtf_name, metafeature_name, pipeline_class, bam_name, fcounts_file, fcounts_summary_file from featurecounts_output.groupTuple(by: [0,1,2])
+    path summary_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_summary.py"
+    path collectcounts_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
 
     output:
     file "*.txt"
 
     script:
-    def summary_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_summary.py"
-    def collectcounts_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
 
     if( pipeline_class[0] == 'stranded' )
         """

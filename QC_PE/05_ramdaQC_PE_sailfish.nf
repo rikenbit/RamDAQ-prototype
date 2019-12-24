@@ -8,8 +8,8 @@ Channel
     .into{run_ids; run_ids_;}
 
 fastq_files = Channel
-    .fromFilePairs("output_" + params.project_id + "/**/*_{R1,R2}_trim.fastq.gz")
-    .map{[file(it[1][0]).parent.toString().replaceAll('/02_fastqmcf','').split('/')[file(it[1][0]).parent.toString().replaceAll('/02_fastqmcf','').split('/').length - 1], file(it[1][0]).baseName.replaceAll('.fastq',''), file(it[1][1]).baseName.replaceAll('.fastq',''), file(it[1][0]).baseName.replaceAll('_R1_trim.fastq',''), it[1][0], it[1][1]]}
+    .fromFilePairs("output_" + params.project_id + "/**/*_{R1,R2}_trim.fastq.gz", flat: true) { file -> file.name.replaceAll(/_R1|_R2/,''    ).replaceAll('_trim', '').replaceAll('.fastq.gz', '') }
+    .map{[file(file(it[1]).parent.toString().replaceAll('/02_fastqmcf','')).name, it[0], it[1], it[2]]}
 
 fastq_files
     .into{
@@ -23,7 +23,7 @@ sailfish_options = Channel
 
 sailfish_index = Channel
         .from(params.sailfish_index)
-        .map{ [it[0], file(it[1])] }
+        .map{ [it[0], it[1], file(it[1]+"*")] }
 
 sailfish_conditions = fastq_files_input
     .combine(sailfish_options)
@@ -40,7 +40,7 @@ process run_sailfish  {
 
     input:
     val proj_id
-    set run_id, fastq_L_name, fastq_R_name, fastq_name, fastq_L, fastq_R, option_name, option, index_name, index from sailfish_conditions
+    set run_id, fastq_name, file(fastq_L), file(fastq_R), option_name, option, index_name, index, file(index_files)  from sailfish_conditions
 
     output:
     set run_id, fastq_name, file("sailfish_${fastq_name}_trim") into sailfish_output
@@ -63,14 +63,13 @@ process collect_sailfish_summary {
     input:
     val proj_id
     set run_id, fastq_name, sailfish_outdir from sailfish_output.groupTuple()
+    path summary_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_sailfish_summary.py"
+    path collectcounts_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_sailfish_counts.py"
 
     output:
     file "*.txt"
 
     script:
-    def summary_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_sailfish_summary.py"
-    def collectcounts_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_sailfish_counts.py"
-
     
     """
     python $summary_script_path $PWD/output_$proj_id/$run_id/06_sailfish summary_sailfish_results 

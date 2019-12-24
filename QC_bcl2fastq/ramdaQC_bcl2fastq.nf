@@ -12,7 +12,7 @@ process run_bcl2fastq  {
     tag { "${run_id}"}
     publishDir "output_${proj_id}/${run_id}/01_fastq_files"
 
-    container "bcl2fastq2:1.0"
+    container "docker.io/myoshimura080822/bcl2fastq2:1.0"
 
     input:
     val proj_id

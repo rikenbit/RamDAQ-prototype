@@ -11,8 +11,7 @@ Channel
 
 fastq_files = Channel
         .fromPath("output_" + params.project_id + "/**/*_trim.fastq.gz")
-        .map { file -> tuple(file.parent.toString().replaceAll('/02_fastqmcf','').split('/')[file.parent.toString().replaceAll('/02_fastqmcf','').split('/').length - 1], file.baseName.replaceAll('_trim.fastq',''), file) }
-        //.println()
+        .map { [file(file(it).parent.toString().replaceAll('/02_fastqmcf','')).name, it.baseName.replaceAll('_trim.fastq', ''), it]}
 
 fastq_files
     .into{
@@ -30,7 +29,7 @@ hisat2_strandedness = Channel
 
 hisat2_index = Channel
         .from(params.hisat2_rrna_index)
-        .map{ [it[0], file(it[1])] }
+        .map{ [it[0], it[1], file(it[1]+"*")] }
 
 hisat2_conditions = fastq_files_input
     .combine(hisat2_options)
@@ -53,7 +52,7 @@ process run_hisat2  {
 
     input:
     val proj_id
-    set run_id, fastq_name, fastq, option_name, option, strandedness_name, strandedness, index_name, index, pipeline_class from hisat2_conditions
+    set run_id, fastq_name, file(fastq), option_name, option, strandedness_name, strandedness, index_name, index, file(index_files), pipeline_class from hisat2_conditions
 
     output:
     set run_id, pipeline_class, fastq_name, file("*.bam") into hisat2_output, hisat2_output_forsummary
@@ -98,7 +97,7 @@ process run_featurecounts  {
 
     input:
     val proj_id
-    set run_id, pipeline_class, bam_name, bam_file, option_name, option, gtf_name, gtf from featurecounts_conditions
+    set run_id, pipeline_class, bam_name, file(bam_file), option_name, option, gtf_name, file(gtf) from featurecounts_conditions
 
     output:
     set run_id, gtf_name, pipeline_class, bam_name, file("fcounts_${bam_name}_rrna_trim.txt"), file("fcounts_${bam_name}_rrna_trim.txt.summary") into featurecounts_output
@@ -121,14 +120,13 @@ process collect_hisat2_summary {
     
     input:
     val proj_id
-    set run_id, pipeline_class, bam_name, bam_file from hisat2_output_forsummary.groupTuple()
+    set run_id, pipeline_class, bam_name, file(bam_file) from hisat2_output_forsummary.groupTuple()
+    path summary_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_hisat2_summary.py"
 
     output:
     file "*.txt"
 
     script:
-    def summary_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_hisat2_summary.py"
-
     """
     python $summary_script_path $PWD/output_${proj_id}/${run_id}/04_hisat2_rrna summary_hisat2_rrna_results SE
     """
@@ -143,14 +141,13 @@ process collect_featurecounts_results {
 
     input:
     val proj_id
-    set run_id, gtf_name, pipeline_class, bam_name, fcounts_file, fcounts_summary_file from featurecounts_output.groupTuple(by: [0,1])
+    set run_id, gtf_name, pipeline_class, bam_name, file(fcounts_file), file(fcounts_summary_file) from featurecounts_output.groupTuple(by: [0,1])
+    path collectcounts_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
 
     output:
     set run_id, file("*.txt") into collect_featurecounts_results_output
 
     script:
-    def collectcounts_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
-
     """
     python $collectcounts_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts_rrna/${gtf_name}/ mergefcounts_${gtf_name}
     """
@@ -167,18 +164,21 @@ process collect_highsensitivity_rrnaQC_summary {
     val proj_id
     val collect_rrnaQC_annot_ts
     val collect_rrnaQC_annot_refseq
-    set run_id, merge_fcounts_file from collect_featurecounts_results_output.groupTuple()
+    set run_id, file(merge_fcounts_file) from collect_featurecounts_results_output.groupTuple()
+
+    path collectcounts_script_mouse from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_highsensitivity_rrnaQC_summary_mouse.R"
+    path collectcounts_script_human from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_highsensitivity_rrnaQC_summary_human.R"
+    path collect_rrnaQC_annot_ts_file from collect_rrnaQC_annot_ts
+    path collect_rrnaQC_annot_refseq_file from collect_rrnaQC_annot_refseq
 
     output:
     file "*.txt"
 
     script:
-    def collectcounts_script_mouse = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_highsensitivity_rrnaQC_summary_mouse.R"
-    def collectcounts_script_human = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_highsensitivity_rrnaQC_summary_human.R"
 
     if( pipeline_species == 'mouse' )
         """
-        Rscript $collectcounts_script_mouse $PWD/output_${proj_id}/${run_id} ${collect_rrnaQC_annot_ts} ${collect_rrnaQC_annot_refseq}
+        Rscript $collectcounts_script_mouse $PWD/output_${proj_id}/${run_id} ${collect_rrnaQC_annot_ts_file} ${collect_rrnaQC_annot_refseq_file}
         """
     else if( pipeline_species == 'human' )
         """

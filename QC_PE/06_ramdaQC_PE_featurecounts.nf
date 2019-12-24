@@ -9,13 +9,16 @@ Channel
 
 bam_files = Channel
         .fromPath("output_" + params.project_id + "/**/04_hisat2/*_trim.sort.bam")
-        .map { file -> tuple(file.parent.toString().replaceAll('/04_hisat2','').split('/')[file.parent.toString().replaceAll('/04_hisat2','').split('/').length - 1], file.baseName.replaceAll('_trim.sort', ''), file) }
+        .map { [file(file(it).parent.toString().replaceAll('/04_hisat2','')).name, it.baseName.replaceAll('_trim', '').replaceAll('.sort', ''), it]}
 
 bam_files
     .into{
         bam_files_input
         bam_files_to_count
+        bam_files_test
     }
+
+//bam_files_test.println()
         
 featurecounts_options = Channel
         .from(params.featurecounts_options)
@@ -56,7 +59,7 @@ process run_featurecounts  {
 
     input:
     val proj_id
-    set run_id, bam_name, bam_file, option_name, option, metafeature_name, metafeature, gtf_name, gtf from featurecounts_conditions
+    set run_id, bam_name, file(bam_file), option_name, option, metafeature_name, metafeature, gtf_name, file(gtf) from featurecounts_conditions
 
     output:
     set run_id, gtf_name, metafeature_name, bam_name, file("fcounts_${bam_name}_trim.txt"), file("fcounts_${bam_name}_trim.txt.summary") into featurecounts_output
@@ -79,14 +82,14 @@ process collect_featurecounts_summary {
 
     input:
     val proj_id
-    set run_id, gtf_name, metafeature_name, bam_name, fcounts_file, fcounts_summary_file from featurecounts_output.groupTuple(by: [0,1,2])
+    set run_id, gtf_name, metafeature_name, bam_name, file(fcounts_file), file(fcounts_summary_file) from featurecounts_output.groupTuple(by: [0,1,2])
+    path summary_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_summary.py"
+    path collectcounts_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
 
     output:
     file "*.txt"
 
     script:
-    def summary_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_summary.py"
-    def collectcounts_script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
 
     """
     python $summary_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${metafeature_name} summary_featurecounts_results_${gtf_name}_${metafeature_name} 

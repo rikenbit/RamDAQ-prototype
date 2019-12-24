@@ -11,9 +11,8 @@ Channel
 
 fastq_files = Channel
         .fromPath("output_" + params.project_id + "/**/*_trim.fastq.gz")
-        .map { file -> tuple(file.parent.toString().replaceAll('/02_fastqmcf','').split('/')[file.parent.toString().replaceAll('/02_fastqmcf','').split('/').length - 1], file.baseName.replaceAll('_trim.fastq',''), file) }
-        //.println()
-
+        .map { [file(file(it).parent.toString().replaceAll('/02_fastqmcf','')).name, it.baseName.replaceAll('_trim.fastq', ''), it]}
+        
 fastq_files
     .into{
         fastq_files_input
@@ -30,9 +29,11 @@ hisat2_strandedness = Channel
 
 hisat2_index = Channel
         .from(params.hisat2_index)
-        .map{ [it[0], file(it[1])] }
+        .map{ [it[0], it[1], file(it[1]+"*")] }
 
-ref_chrsize = params.ref_chrsize
+ref_chrsize = Channel
+        .from(params.ref_chrsize)
+        .map{ [it[0], file(it[1])] }
 
 hisat2_conditions = fastq_files_input
     .combine(hisat2_options)
@@ -53,11 +54,10 @@ process run_hisat2  {
     
     input:
     val proj_id
-    set run_id, fastq_name, fastq, option_name, option, strandedness_name, strandedness, index_name, index, chrom_size, pipeline_class from hisat2_conditions
+    set run_id, fastq_name, file(fastq), option_name, option, strandedness_name, strandedness, index_name, index, file(index_files), chrom_size, file(chrom_size_file), pipeline_class from hisat2_conditions
 
     output:
-    set pipeline_class, run_id, fastq_name, file("*.bam"), chrom_size into hisat2_output
-    file "*.bai"
+    set pipeline_class, run_id, fastq_name, file("*.bam"), file("*.bai"), file(chrom_size_file) into hisat2_output
     file "*.bam" into hisat2_output_to_count
 
     script:
@@ -90,7 +90,7 @@ process run_bam2wig  {
 
     input:
     val proj_id
-    set pipeline_class, run_id, fastq_name, bam_files, chrom_size from hisat2_output
+    set pipeline_class, run_id, fastq_name, file(bam_files), file(bai_files), file(chrom_size) from hisat2_output
 
     output:
     file "*.bw" into bam2wig_output_to_count
