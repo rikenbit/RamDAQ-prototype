@@ -27,10 +27,14 @@ def dataout(data, filename):
     data.to_csv(filename + '.txt', sep="\t")
 
 def fild_all_files(directory):
-    for root, dirs, files in os.walk(directory):
+    for root, dirs, files in os.walk(directory, onerror=error_cb):
         for file in files:
             if fnmatch.fnmatch(file, '*.inferexp.txt'):
                 yield os.path.join(root, file)
+
+def error_cb(e):
+    print 'could not open "{0}" [{1}]: {2}'.format(e.filename, e.errno, e.strerror)
+    raise oserror(e)
 
 def main():
     filelist = []

@@ -58,7 +58,7 @@ process run_featurecounts  {
 
     input:
     val proj_id
-    set run_id, bam_name, bam_file, option_name, option, metafeature_name, metafeature, gtf_name, gtf, pipeline_class from featurecounts_conditions
+    set run_id, bam_name, file(bam_file), option_name, option, metafeature_name, metafeature, gtf_name, file(gtf), pipeline_class from featurecounts_conditions
 
     output:
     set run_id, gtf_name, metafeature_name, pipeline_class, bam_name, file("fcounts_${bam_name}_trim.txt"), file("fcounts_${bam_name}_trim.txt.summary") into featurecounts_output
@@ -81,7 +81,7 @@ process collect_featurecounts_summary {
 
     input:
     val proj_id
-    set run_id, gtf_name, metafeature_name, pipeline_class, bam_name, fcounts_file, fcounts_summary_file from featurecounts_output.groupTuple(by: [0,1,2])
+    set run_id, gtf_name, metafeature_name, pipeline_class, bam_name, file(fcounts_file), file(fcounts_summary_file) from featurecounts_output.groupTuple(by: [0,1,2])
     path summary_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_summary.py"
     path collectcounts_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
 
@@ -100,6 +100,7 @@ process collect_featurecounts_summary {
         python $summary_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${metafeature_name} summary_featurecounts_results_${gtf_name}_${metafeature_name} unstranded
         python $collectcounts_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${metafeature_name} mergefcounts_${gtf_name}_${metafeature_name}
         """
+
 }
 
 // Check number of files with >0 byte file size

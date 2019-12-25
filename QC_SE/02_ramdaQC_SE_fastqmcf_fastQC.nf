@@ -55,12 +55,12 @@ process collect_fastQC_bef_summary {
     input:
     val proj_id
     set run_id, fastq_dir from fastqc_bef_output.groupTuple()
+    path script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_fastqc_summary.py"
 
     output:
     file "*.txt"
 
     script:
-    def script_path = workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_fastqc_summary.py"
 
     """
     python $script_path $PWD/output_$proj_id/$run_id/03_fastQC_beforeTrimming summary_beforetrim_fastQC_result
