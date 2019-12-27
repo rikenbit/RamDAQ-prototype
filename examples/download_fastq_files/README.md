@@ -14,7 +14,7 @@ mv output_download_fastq $HOME/RamDAQ_example/output_RamDA_NSC/human_NSC_001/01_
 ## What happens?
 
 
-1. SRA files (`.sra`) listed in `job.yml` are downloaded.
+1. SRA files (`.sra`) whose Run IDs are listed in `list_run_ids.tsv` are downloaded.
 2. The SRA files are coverted into (gzipped) FASTQ format by [`pfastq_dump`](https://github.com/inutano/pfastq-dump).
 
 **Note:** The above pipeline utilize [`download-fastq.cwl`](https://github.com/pitagora-network/pitagora-cwl/tree/master/workflows/download-fastq) based on [Common Workflow Language](https://www.commonwl.org/) (CWL). We appreciate [Tazro Inutano Ohta](https://github.com/inutano), who is a great developer and has developed `download-fastq.cwl` and `pfastq_dump`.
