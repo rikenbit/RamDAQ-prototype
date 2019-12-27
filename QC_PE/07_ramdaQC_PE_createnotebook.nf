@@ -13,7 +13,7 @@ process execute_nbconvert {
 
     input:
     val proj_id
-    val run_id from run_ids
+    set run_id from run_ids
     path proj_dir from workflow.workDir.parent + "/output_${proj_id}"
     path notebook_path_unstranded from workflow.scriptFile.parent.parent + "/R_QCplot/RamDA-SeqQC_template_PE_unstranded_nbconvert.ipynb"
     path function_file from workflow.scriptFile.parent.parent + "/R_QCplot/00_sampleQC_function_nbconvert.R"
