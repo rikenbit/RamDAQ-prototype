@@ -9,19 +9,27 @@ process execute_nbconvert {
     tag {"${proj_id}"}
     publishDir "output_${proj_id}/${run_id}", mode: 'copy', overwrite: true
 
+    container "docker.io/myoshimura080822/jupyternotebook:2.4"
+
     input:
     val proj_id
-    set run_id from run_ids
+    val run_id from run_ids
+    path proj_dir from workflow.workDir.parent + "/output_${proj_id}"
+    path notebook_path_unstranded from workflow.scriptFile.parent.parent + "/R_QCplot/RamDA-SeqQC_template_PE_unstranded_nbconvert.ipynb"
+    path function_file from workflow.scriptFile.parent.parent + "/R_QCplot/00_sampleQC_function_nbconvert.R"
+
+    output:
+    file "*.html"
+    file "*.ipynb"
 
     script:
-    def runfolder_dir = workflow.workDir.parent + "/output_${proj_id}/${run_id}"
-    def accessory_path = workflow.scriptFile.parent.parent + "/R_QCplot"
-    def notebook_path_unstranded = "/accessory/RamDA-SeqQC_template_PE_unstranded_nbconvert.ipynb"
-
     """
-    /usr/bin/docker run --rm --user=0 -v $accessory_path:/accessory -v $runfolder_dir:/data docker.io/myoshimura080822/jupyternotebook:2.4 jupyter nbconvert --to notebook --execute $notebook_path_unstranded --output /data/${run_id}_notebook_PE_unstranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+    ln -s $proj_dir/${run_id}/summary_* .
+    ln -s $proj_dir/${run_id}/mergefcounts_gencode_mrna_gene.txt .
+    
+    jupyter nbconvert --to notebook --execute $notebook_path_unstranded --output ${run_id}_notebook_PE_unstranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
 
-    /usr/bin/docker run --rm --user=0 -v $accessory_path:/accessory -v $runfolder_dir:/data docker.io/myoshimura080822/jupyternotebook:2.4 jupyter nbconvert --to html /data/${run_id}_notebook_PE_unstranded.ipynb --output /data/${run_id}_notebook_PE_unstranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+    jupyter nbconvert --to html --execute $notebook_path_unstranded --output ${run_id}_notebook_PE_unstranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
     """
 }
 
