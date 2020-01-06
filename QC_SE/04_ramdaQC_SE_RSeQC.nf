@@ -20,7 +20,7 @@ bam_files
         bam_tmp
     }
 
-bam_tmp.println()
+//bam_tmp.println()
 
 bam_files_sortcount = Channel
         .fromPath("output_" + params.project_id + "/**/04_hisat2/*.sort.bam")
