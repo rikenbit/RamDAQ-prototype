@@ -9,7 +9,7 @@ Channel
 
 fastq_files = Channel
     .fromPath("output_" + params.project_id + "/**/*_trim.fastq.gz")
-    .map { [file(file(it).parent.toString().replaceAll('//02_fastqmcf','')).name, it.baseName.replaceAll('_trim.fastq', ''), it]}
+    .map { [file(file(it).parent.toString().replaceAll('/02_fastqmcf','')).name, it.baseName.replaceAll('_trim.fastq', ''), it]}
 
 fastq_files
     .into{
