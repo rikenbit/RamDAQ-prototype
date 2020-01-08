@@ -29,8 +29,12 @@ def dataout(data, filename):
 def fild_all_files(directory):
     for root, dirs, files in os.walk(directory, onerror=error_cb):
         for file in files:
-            if fnmatch.fnmatch(file, '*.' + strand_option + '_readdist.txt'):
-                yield os.path.join(root, file)
+            if strand_option == "sort" :
+                if fnmatch.fnmatch(file, '*_readdist.txt'):
+                    yield os.path.join(root, file)
+            else:
+                if fnmatch.fnmatch(file, '*' + strand_option + '_readdist.txt'):
+                    yield os.path.join(root, file)
 
 def error_cb(e):
     print 'Could not open "{0}" [{1}]: {2}'.format(e.filename, e.errno, e.strerror)
@@ -47,7 +51,7 @@ def main():
     df = pd.DataFrame() 
     for path in filelist:
         with open(path) as fp:
-            fname=os.path.basename(path).split(".")[0]
+            fname=os.path.basename(path).split(".")[0].replace("_readdist","")
             totalread=0
             totaltag=0
             assignedtag=0
