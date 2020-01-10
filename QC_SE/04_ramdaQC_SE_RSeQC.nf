@@ -34,7 +34,6 @@ RSeQC_conditions = bam_files_input
     .combine(pipeline_class)
 
 RSeQC_conditions.into{RSeQC_conditions1; RSeQC_conditions2; RSeQC_conditions3}
-//RSeQC_conditions.println()
 
 process run_RSeQC_readDist  {
 
@@ -118,7 +117,6 @@ process collect_RSeQC_summary_readDist {
     input:
     val proj_id
     set run_id, pipeline_class, file(readdist_file) from readdist_output.groupTuple()
-
     path readdist_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_ReadDist_summary.py"
 
     output:
@@ -153,7 +151,6 @@ process collect_RSeQC_summary_geneBC {
     input:
     val proj_id
     set run_id, pipeline_class, file(genebc_file) from genebc_output.groupTuple()
-
     path genebc_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_geneBC_summary.py"
 
     output:
@@ -189,7 +186,6 @@ process collect_RSeQC_summary_inferexp {
     input:
     val proj_id
     set run_id, pipeline_class, file(infer_file) from inferexp_output.groupTuple()
-
     path infer_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_inferexperiment_summary.py"
 
     output:

@@ -33,7 +33,7 @@ RSeQC_conditions = bam_files_input
     .combine(ref_bed)
     .combine(pipeline_class)
 
-//RSeQC_conditions.println()
+RSeQC_conditions.into{RSeQC_conditions1; RSeQC_conditions2; RSeQC_conditions3}
 
 process run_RSeQC_readDist  {
 
@@ -44,10 +44,10 @@ process run_RSeQC_readDist  {
     
     input:
     val proj_id
-    set run_id, bam_name, file(bam_file), file(bai_file), bed_name, file(bed_file), pipeline_class from RSeQC_conditions
+    set run_id, bam_name, file(bam_file), file(bai_file), bed_name, file(bed_file), pipeline_class from RSeQC_conditions1
 
     output:
-    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file("*_readdist.txt") into readdist_output
+    set run_id, pipeline_class, file("*_readdist.txt") into readdist_output
     file "*_readdist.txt" into readDist_output_to_count
 
     script:
@@ -68,10 +68,10 @@ process run_RSeQC_geneBC  {
  
     input:
     val proj_id
-    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file(readdist_file) from readdist_output
+    set run_id, bam_name, file(bam_file), file(bai_file), bed_name, file(bed_file), pipeline_class from RSeQC_conditions2
 
     output:
-    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file(readdist_file), file("${bam_name}.geneBodyCoverage.txt") into genebc_output
+    set run_id, pipeline_class, file("${bam_name}.geneBodyCoverage.txt") into genebc_output
     file "*.geneBodyCoverage.r"
     file "*.geneBodyCoverage.txt" into geneBC_output_to_count
 
@@ -91,7 +91,7 @@ process run_RSeQC_inferexp  {
 
     input:
     val proj_id
-    set run_id, pipeline_class, bam_name, file(bam_file), file(bai_file), file(bed_file), file(readdist_file), file(geneBC_file) from genebc_output    
+    set run_id, bam_name, file(bam_file), file(bai_file), bed_name, file(bed_file), pipeline_class from RSeQC_conditions3
 
     output:
     set run_id, pipeline_class, file("*.inferexp.txt") into inferexp_output
@@ -107,7 +107,9 @@ process run_RSeQC_inferexp  {
     """
 }
 
-process collect_RSeQC_summary {
+
+
+process collect_RSeQC_summary_readDist {
 
     tag {"${proj_id}"}
     publishDir "output_${proj_id}/${run_id}", mode: 'copy', overwrite: true
@@ -116,10 +118,8 @@ process collect_RSeQC_summary {
 
     input:
     val proj_id
-    set run_id, pipeline_class, file(infer_file) from inferexp_output.groupTuple()
+    set run_id, pipeline_class, file(readdist_file) from readdist_output.groupTuple()
     path readdist_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_ReadDist_summary.py"
-    path genebc_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_geneBC_summary.py"
-    path infer_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_inferexperiment_summary.py"
  
     output:
     file "*.txt"
@@ -129,26 +129,71 @@ process collect_RSeQC_summary {
     if( pipeline_class[0] == 'stranded' )
         """
          python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution sort summary_RSeQC_ReadDist_results_PE_sort
-         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage sort summary_RSeQC_geneBC_results_PE_sort
-
          python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution forward summary_RSeQC_ReadDist_results_PE_forward
-         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage forward summary_RSeQC_geneBC_results_PE_forward
-
          python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution reverse summary_RSeQC_ReadDist_results_PE_reverse
-         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage reverse summary_RSeQC_geneBC_results_PE_reverse
-
          python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution R1 summary_RSeQC_ReadDist_results_PE_R1
-         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage R1 summary_RSeQC_geneBC_results_PE_R1
-
          python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution R2 summary_RSeQC_ReadDist_results_PE_R2
-         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage R2 summary_RSeQC_geneBC_results_PE_R2
-
-         python $infer_script_path $PWD/output_$proj_id/$run_id/05_rseqc/infer_experiment summary_RSeQC_inferexperiment_results_PE_sort PE
         """
     else if( pipeline_class[0] == 'unstranded' )
         """
          python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution sort summary_RSeQC_ReadDist_results_PE_sort
+        """
+}
+
+process collect_RSeQC_summary_geneBC {
+
+    tag {"${proj_id}"}
+    publishDir "output_${proj_id}/${run_id}", mode: 'copy', overwrite: true
+
+    container "docker.io/myoshimura080822/scientific_python2.7:1.0"
+
+    input:
+    val proj_id
+    set run_id, pipeline_class, file(genebc_file) from genebc_output.groupTuple()
+    path genebc_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_RSeQC_geneBC_summary.py"
+ 
+    output:
+    file "*.txt"
+
+    script:
+
+    if( pipeline_class[0] == 'stranded' )
+        """
          python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage sort summary_RSeQC_geneBC_results_PE_sort
+         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage forward summary_RSeQC_geneBC_results_PE_forward
+         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage reverse summary_RSeQC_geneBC_results_PE_reverse
+         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage R1 summary_RSeQC_geneBC_results_PE_R1
+         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage R2 summary_RSeQC_geneBC_results_PE_R2
+        """
+    else if( pipeline_class[0] == 'unstranded' )
+        """
+         python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage sort summary_RSeQC_geneBC_results_PE_sort
+        """
+}
+
+process collect_RSeQC_summary_inferexp {
+
+    tag {"${proj_id}"}
+    publishDir "output_${proj_id}/${run_id}", mode: 'copy', overwrite: true
+
+    container "docker.io/myoshimura080822/scientific_python2.7:1.0"
+
+    input:
+    val proj_id
+    set run_id, pipeline_class, file(infer_file) from inferexp_output.groupTuple()
+    path infer_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_inferexperiment_summary.py"
+ 
+    output:
+    file "*.txt"
+
+    script:
+
+    if( pipeline_class[0] == 'stranded' )
+        """
+         python $infer_script_path $PWD/output_$proj_id/$run_id/05_rseqc/infer_experiment summary_RSeQC_inferexperiment_results_PE_sort PE
+        """
+    else if( pipeline_class[0] == 'unstranded' )
+        """
          python $infer_script_path $PWD/output_$proj_id/$run_id/05_rseqc/infer_experiment summary_RSeQC_inferexperiment_results_PE_sort PE
         """
 }
