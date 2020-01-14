@@ -44,7 +44,6 @@ process run_sailfish  {
 
     output:
     set run_id, fastq_name, file("sailfish_${fastq_name}_trim") into sailfish_output
-    file "**/quant.sf" into sailfish_output_to_count
 
     script:
 
@@ -78,18 +77,18 @@ process collect_sailfish_summary {
 }
 
 // Check number of files with >0 byte file size
-n_fastq = fastq_files_to_count.count {it[2].size() > 0}.getVal()
-n_sailfish_output = sailfish_output_to_count.count {it.size() > 0}.getVal()
+//n_fastq = fastq_files_to_count.count {it[2].size() > 0}.getVal()
+//n_sailfish_output = sailfish_output_to_count.count {it.size() > 0}.getVal()
 
-println "======== Checking the number of files ========"
-if(n_fastq == n_sailfish_output) { 
-    println "Number of files are same:-)"
-    println "    fastq: $n_fastq"
-    println "    sailfish: $n_sailfish_output"
-} else{ 
-    println "!!Caution!! Number of files are different:"
-    println "    fastq: $n_fastq"
-    println "    sailfish: $n_sailfish_output"
-}
+//println "======== Checking the number of files ========"
+//if(n_fastq == n_sailfish_output) { 
+//    println "Number of files are same:-)"
+//    println "    fastq: $n_fastq"
+//    println "    sailfish: $n_sailfish_output"
+//} else{ 
+//    println "!!Caution!! Number of files are different:"
+//    println "    fastq: $n_fastq"
+//    println "    sailfish: $n_sailfish_output"
+//}
 
 

@@ -61,7 +61,7 @@ process run_hisat2  {
     path scripts_dir from workflow.scriptFile.parent.parent + "/bamtools_scripts"
 
     output:
-    set pipeline_class, run_id, fastq_name, file("*.bam"), file("*.bai"), file(chrom_size_file) into hisat2_output
+    set chrom_size, pipeline_class, run_id, fastq_name, file("*.bam"), file("*.bai") into hisat2_output
     file "*.bai"
     file "*.bam" into hisat2_output_to_count
 
@@ -91,6 +91,12 @@ process run_hisat2  {
         """
 }
 
+ref_chrsize2 = Channel
+    .from(params.ref_chrsize)
+    .map{ [it[0], file(it[1])] }
+
+bam2wig_input = hisat2_output
+    .combine(ref_chrsize2, by: 0)
 
 process run_bam2wig  {
 
@@ -101,7 +107,7 @@ process run_bam2wig  {
 
     input:
     val proj_id
-    set pipeline_class, run_id, fastq_name, file(bam_files), file(bai_files), file(chrom_size) from hisat2_output
+    set chrom_size, pipeline_class, run_id, fastq_name, file(bam_files), file(bai_files), file(chrom_size_file) from bam2wig_input
 
     output:
     file "*.bw" into bam2wig_output_to_count
@@ -111,13 +117,13 @@ process run_bam2wig  {
 
     if( pipeline_class == 'stranded' )
         """
-        bam2wig.py -i ${bam_files[2]} -s $chrom_size -u -o ${bam_files[2].baseName}
-        bam2wig.py -i ${bam_files[3]} -s $chrom_size -u -o ${bam_files[3].baseName}
-        bam2wig.py -i ${bam_files[4]} -s $chrom_size -u -o ${bam_files[4].baseName}
+        bam2wig.py -i ${bam_files[2]} -s $chrom_size_file -u -o ${bam_files[2].baseName}
+        bam2wig.py -i ${bam_files[3]} -s $chrom_size_file -u -o ${bam_files[3].baseName}
+        bam2wig.py -i ${bam_files[4]} -s $chrom_size_file -u -o ${bam_files[4].baseName}
         """
     else if( pipeline_class == 'unstranded' )
         """
-        bam2wig.py -i $bam_files -s $chrom_size -u -o ${bam_files.baseName}        
+        bam2wig.py -i $bam_files -s $chrom_size_file -u -o ${bam_files.baseName}        
         """
 }
 
