@@ -242,7 +242,7 @@ plot_assigned_rate <- function(plotdata, title, outdir, ylim, nonplot=NULL){
     #geom_ribbon(aes(ymin=lower, ymax=upper, group=type, fill=type), alpha=0.25) +
     ylim(0, as.integer(ylim)) +
     xlab("Sample")+ylab("Hista2 alined-rate") +
-    scale_x_discrete(labels=plotdata$x) + 
+    #scale_x_discrete(labels=plotdata$x) + 
     theme(axis.text.x=element_text(size=6, angle=90, hjust=1), legend.text=element_text(size=8)) +
     ggtitle(paste(title, "alined rate of hisat2", sep=" "))
  return(g) 
