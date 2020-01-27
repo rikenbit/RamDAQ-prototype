@@ -61,8 +61,7 @@ process run_RSeQC_geneBC  {
     tag {"${proj_id}"}
     publishDir "output_${proj_id}/${run_id}/05_rseqc/gene_bodycoverage", mode: 'copy', overwrite: true
 
-    clusterOptions = '-S /bin/bash -l nc=1'
-    container "docker.io/myoshimura080822/rseqc:1.2"
+    container "yuifu/julia_genebodycoverage:1.3.1-3"
     
     input:
     val proj_id
@@ -70,13 +69,12 @@ process run_RSeQC_geneBC  {
 
     output:
     set run_id, pipeline_class, file("${bam_name}.geneBodyCoverage.txt") into genebc_output
-    file "*.geneBodyCoverage.r"
     file "*.geneBodyCoverage.txt" into geneBC_output_to_count
 
     script:
 
     """
-    geneBody_coverage.py -i $bam_file -r $bed_file -o ./${bam_name}
+    julia /opt/run.jl $bam_file $bed_file $bam_name
     """
 }
 
