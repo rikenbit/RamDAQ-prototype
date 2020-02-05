@@ -53,8 +53,8 @@ First, copy config file to the directory.
 ```
 cd $HOME/RamDAQ_example
 
-cp $HOME/RamDAQ/QC_config/RamDAQ_global_local.config .
-cp $HOME/RamDAQ/QC_config/RamDAQ_human_common.config .
+cp $HOME/RamDAQ/QC_config/RamDAQ_execute_local.config .
+cp $HOME/RamDAQ/QC_config/RamDAQ_annot_human.config .
 cp $HOME/RamDAQ/QC_config/RamDAQ_unstranded_SE.config .
 cp $HOME/RamDAQ/QC_config/sample/RamDAQ_human_unstranded_SE.config .
 ```
@@ -122,8 +122,8 @@ The following section in `*.config` file should be changed.
 cd your_favorite_path
 
 # Copy a config file (The example here is in case of SE)
-cp $HOME/RamDAQ/QC_config/RamDAQ_global_local.config .
-cp $HOME/RamDAQ/QC_config/RamDAQ_human_common.config .
+cp $HOME/RamDAQ/QC_config/RamDAQ_execute_local.config .
+cp $HOME/RamDAQ/QC_config/RamDAQ_annot_human.config .
 cp $HOME/RamDAQ/QC_config/RamDAQ_unstranded_SE.config .
 cp $HOME/RamDAQ/QC_config/sample/RamDAQ_human_unstranded_SE.config .
 
@@ -146,8 +146,8 @@ mkdir your_favorite_path
 cd your_favorite_path
 
 # Copy a config file (The example here is in case of PE)
-cp $HOME/RamDAQ/QC_config/RamDAQ_global_local.config .
-cp $HOME/RamDAQ/QC_config/RamDAQ_human_common.config .
+cp $HOME/RamDAQ/QC_config/RamDAQ_execute_local.config .
+cp $HOME/RamDAQ/QC_config/RamDAQ_annot_human.config .
 cp $HOME/RamDAQ/QC_config/RamDAQ_unstranded_PE.config .
 cp $HOME/RamDAQ/QC_config/sample/RamDAQ_human_unstranded_PE.config .
 cp $HOME/RamDAQ/QC_config/PE_samplelist.txt .
