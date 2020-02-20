@@ -62,7 +62,7 @@ process run_RSeQC_geneBC  {
     tag {"${proj_id}"}
     publishDir "output_${proj_id}/${run_id}/05_rseqc/gene_bodycoverage", mode: 'copy', overwrite: true
 
-    container "docker.io/myoshimura080822/rseqc:1.2"
+    container "docker.io/myoshimura080822/julia_genebodycoverage:1.2"
  
     input:
     val proj_id
