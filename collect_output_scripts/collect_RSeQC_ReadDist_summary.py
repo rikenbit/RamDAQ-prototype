@@ -47,7 +47,10 @@ def main():
         filelist.append(gettxt)
     
     print 'file num of dir : ' + str(len(filelist))
-    
+
+    if len(filelist) == 0 :
+        raise ValueError('Could not open readdist results files: ' + strand_option)
+
     df = pd.DataFrame() 
     for path in filelist:
         with open(path) as fp:

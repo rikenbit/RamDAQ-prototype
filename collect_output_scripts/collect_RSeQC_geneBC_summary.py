@@ -59,6 +59,9 @@ def main():
     
     print 'file num of dir : ' + str(len(filelist))
     
+    if len(filelist) == 0 :
+        raise ValueError('Could not open geneBC results files: ' + strand_option)
+    
     column_name = range(1, 101)
     column_name.insert(0, 'name')
     df = pd.DataFrame(columns=column_name) 

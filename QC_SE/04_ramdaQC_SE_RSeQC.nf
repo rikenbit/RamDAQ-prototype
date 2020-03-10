@@ -10,7 +10,7 @@ Channel
     .into{run_ids; run_ids_;}
 
 bam_files = Channel
-    .fromFilePairs("output_" + params.project_id + "/**/04_hisat2/*.{bam,bai}", flat: true) { file -> file.name.replaceAll(/.bam|.bai$/,'').replaceAll('_trim', '').replaceAll('.sort', '') }
+    .fromFilePairs("output_" + params.project_id + "/**/04_hisat2/*.{bam,bai}", flat: true) { file -> file.name.replaceAll(/.bam|.bai$/,'').replaceAll('_trim', '') }
     .map {[file(file(it[1]).parent.toString().replaceAll('/04_hisat2','')).name, it[0], file(it[1]), file(it[2])]}
 
 bam_files
