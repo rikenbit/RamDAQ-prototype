@@ -2,6 +2,33 @@
 
 proj_id = params.project_id
 
+// checking files exist from config setting
+
+chk_adapter = Channel
+    .from(params.adapter)
+    .map{file(it[1], checkIfExists: true)}
+    .ifEmpty { exit 1, "adapter file not found" }
+
+chk_index = Channel
+    .from(params.hisat2_index)
+    .map{file(it[1]+"*", checkIfExists: true)}
+    .ifEmpty { exit 1, "hisat2 index not found" }
+
+chk_chrsize = Channel
+    .from(params.ref_chrsize)
+    .map{file(it[1], checkIfExists: true)}
+    .ifEmpty { exit 1, "chromsize file not found" }
+
+chk_bedfile = Channel
+    .from(params.ref_beds)
+    .map{file(it[1], checkIfExists: true)}
+    .ifEmpty { exit 1, "bed file not found" }
+
+chk_gtffile = Channel
+    .from(params.featurecounts_gtfs)
+    .map{file(it[1], checkIfExists: true)}
+    .ifEmpty { exit 1, "gtf file not found" }
+
 fastq_files = Channel
         .fromPath("output_" + params.project_id + "/**/01_fastq_files/*.fastq.gz")
         .map { [file(file(it).parent.toString().replaceAll('/01_fastq_files','')).name, it.baseName.replaceAll('.fastq', ''), it]}
