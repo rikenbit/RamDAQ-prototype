@@ -133,7 +133,7 @@ process collect_RSeQC_summary_readDist {
     else if( pipeline_class[0] == 'unstranded' )
 
         """
-        python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution sort summary_RSeQC_ReadDist_results_SE_sort
+        python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution unstranded summary_RSeQC_ReadDist_results_SE_sort
         """
 
 }
@@ -167,7 +167,7 @@ process collect_RSeQC_summary_geneBC {
     else if( pipeline_class[0] == 'unstranded' )
 
         """
-        python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage sort summary_RSeQC_geneBC_results_SE_sort
+        python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage unstranded summary_RSeQC_geneBC_results_SE_sort
         """
 
 }

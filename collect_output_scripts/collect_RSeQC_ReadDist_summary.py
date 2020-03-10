@@ -29,7 +29,7 @@ def dataout(data, filename):
 def fild_all_files(directory):
     for root, dirs, files in os.walk(directory, onerror=error_cb):
         for file in files:
-            if strand_option == "sort" :
+            if strand_option == "unstranded" :
                 if fnmatch.fnmatch(file, '*_readdist.txt'):
                     yield os.path.join(root, file)
             else:
@@ -51,7 +51,11 @@ def main():
     df = pd.DataFrame() 
     for path in filelist:
         with open(path) as fp:
-            fname=os.path.basename(path).split(".")[0].replace("_readdist","")
+            if strand_option == "unstranded" :
+                fname=os.path.basename(path).replace(".sort_readdist.txt","")
+            else:
+                fname=os.path.basename(path).replace("_readdist.txt","")
+
             totalread=0
             totaltag=0
             assignedtag=0

@@ -31,7 +31,7 @@ def dataout(data, filename):
 def fild_all_files(directory):
     for root, dirs, files in os.walk(directory, onerror=error_cb):
         for file in files:
-            if strand_option == "sort" :
+            if strand_option == "unstranded" :
                 if fnmatch.fnmatch(file, '*.geneBodyCoverage.txt'):
                     yield os.path.join(root, file)
             else:
@@ -65,7 +65,10 @@ def main():
     index = 0
     for path in filelist:
         with open(path) as fp:
-            fname=os.path.basename(path).split(".")[0]
+            if strand_option == "unstranded" :
+                fname=os.path.basename(path).replace(".sort.geneBodyCoverage.txt","")
+            else:
+                fname=os.path.basename(path).replace(".geneBodyCoverage.txt","")
             dataset=[]
             for i, line in enumerate(fp):
                 line = line.strip()

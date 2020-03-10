@@ -101,7 +101,9 @@ plot_perGC <- function(plotdata, title, outdir, nonplot=NULL){
 }
 
 plot_assignedgene_rate <- function(fastqcdata, readDistdata, title, outdir, ylim, pair=F, nonplot=NULL){
-    
+  
+  readDistdata$name = str_replace_all(readDistdata$name, ".sort", "")
+
   if (!is.null(nonplot)){
     fastqcdata = subset(fastqcdata, !name %in% nonplot)
     readDistdata = subset(readDistdata, !name %in% nonplot)

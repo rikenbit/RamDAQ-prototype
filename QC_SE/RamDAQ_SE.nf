@@ -443,7 +443,7 @@ process collect_RSeQC_summary_readDist {
     else if( pipeline_class[0] == 'unstranded' )
 
         """
-        python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution sort summary_RSeQC_ReadDist_results_SE_sort
+        python $readdist_script_path $PWD/output_$proj_id/$run_id/05_rseqc/read_distribution unstranded summary_RSeQC_ReadDist_results_SE_sort
         """
 
 }
@@ -476,7 +476,7 @@ process collect_RSeQC_summary_geneBC {
     else if( pipeline_class[0] == 'unstranded' )
 
         """
-        python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage sort summary_RSeQC_geneBC_results_SE_sort
+        python $genebc_script_path $PWD/output_$proj_id/$run_id/05_rseqc/gene_bodycoverage unstranded summary_RSeQC_geneBC_results_SE_sort
         """
 }
 
@@ -515,7 +515,9 @@ summary_fastqcrseqc_join
     .join(summary_fcounts)
     .into{nbconvert_input; nbconvert_input_print}
 
-//nbconvert_input_print.println()
+// nbconvert_input_print.println()
+
+pipeline_class_forreport = params.pipeline_class
 
 process execute_nbconvert {
 
@@ -526,9 +528,11 @@ process execute_nbconvert {
 
     input:
     val proj_id
+    val pipeline_class_forreport
     set run_id, file('*'), file('*'), file('*'), file('*'), file('*') from nbconvert_input
     path proj_dir from workflow.workDir.parent + "/output_${proj_id}"
     path notebook_path_unstranded from workflow.scriptFile.parent.parent + "/R_QCplot/RamDA-SeqQC_template_SE_unstranded_nbconvert.ipynb"
+    path notebook_path_stranded from workflow.scriptFile.parent.parent + "/R_QCplot/RamDA-SeqQC_template_SE_stranded_nbconvert.ipynb"
     path function_file from workflow.scriptFile.parent.parent + "/R_QCplot/00_sampleQC_function_nbconvert.R"
 
     output:
@@ -536,11 +540,18 @@ process execute_nbconvert {
     file "*.ipynb"
 
     script:
-    """
-    jupyter nbconvert --to html --execute $notebook_path_unstranded --output ${run_id}_notebook_SE_unstranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+    if( pipeline_class_forreport[0] == 'stranded' )
+        """
+        jupyter nbconvert --to html --execute $notebook_path_stranded --output ${run_id}_notebook_SE_stranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
 
-    jupyter nbconvert --to notebook --execute $notebook_path_unstranded --output ${run_id}_notebook_SE_unstranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
-    """
+        jupyter nbconvert --to notebook --execute $notebook_path_stranded --output ${run_id}_notebook_SE_stranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+        """
+    else if( pipeline_class_forreport[0] == 'unstranded' )
+        """
+        jupyter nbconvert --to html --execute $notebook_path_unstranded --output ${run_id}_notebook_SE_unstranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+
+        jupyter nbconvert --to notebook --execute $notebook_path_unstranded --output ${run_id}_notebook_SE_unstranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+        """
 }
 
 

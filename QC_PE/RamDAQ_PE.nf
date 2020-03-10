@@ -515,6 +515,8 @@ summary_fastqcrseqc_join
 
 //nbconvert_input_print.println()
 
+pipeline_class_forreport = params.pipeline_class
+
 process execute_nbconvert {
 
     tag {"${proj_id}"}
@@ -524,9 +526,11 @@ process execute_nbconvert {
 
     input:
     val proj_id
+    val pipeline_class_forreport
     set run_id, file('*'), file('*'), file('*'), file('*'), file('*') from nbconvert_input
     path proj_dir from workflow.workDir.parent + "/output_${proj_id}"
     path notebook_path_unstranded from workflow.scriptFile.parent.parent + "/R_QCplot/RamDA-SeqQC_template_PE_unstranded_nbconvert.ipynb"
+    path notebook_path_stranded from workflow.scriptFile.parent.parent + "/R_QCplot/RamDA-SeqQC_template_PE_stranded_nbconvert.ipynb"
     path function_file from workflow.scriptFile.parent.parent + "/R_QCplot/00_sampleQC_function_nbconvert.R"
 
     output:
@@ -534,11 +538,18 @@ process execute_nbconvert {
     file "*.ipynb"
 
     script:
-    """
-    jupyter nbconvert --to html --execute $notebook_path_unstranded --output ${run_id}_notebook_PE_unstranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+    if( pipeline_class_forreport[0] == 'stranded' )
+        """
+        jupyter nbconvert --to html --execute $notebook_path_stranded --output ${run_id}_notebook_PE_stranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
 
-    jupyter nbconvert --to notebook --execute $notebook_path_unstranded --output ${run_id}_notebook_PE_unstranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
-    """
+        jupyter nbconvert --to notebook --execute $notebook_path_stranded --output ${run_id}_notebook_PE_stranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+        """
+    else if( pipeline_class_forreport[0] == 'unstranded' )
+        """
+        jupyter nbconvert --to html --execute $notebook_path_unstranded --output ${run_id}_notebook_PE_unstranded.html --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+
+        jupyter nbconvert --to notebook --execute $notebook_path_unstranded --output ${run_id}_notebook_PE_unstranded.ipynb --ExecutePreprocessor.timeout=2678400 --allow-errors --debug
+        """
 }
 
 
