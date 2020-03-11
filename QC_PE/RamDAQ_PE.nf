@@ -74,8 +74,10 @@ process run_fastQC_bef {
 
     script:
     """
-    fastqc -o . --nogroup $fastq_L && unzip ${fastq_L_basename}_fastqc.zip
-    fastqc -o . --nogroup $fastq_R && unzip ${fastq_R_basename}_fastqc.zip    
+    fastqc -o . --nogroup $fastq_L
+    unzip ${fastq_L_basename}_fastqc.zip
+    fastqc -o . --nogroup $fastq_R
+    unzip ${fastq_R_basename}_fastqc.zip
     """
 }
 
@@ -139,8 +141,10 @@ process run_fastQC {
 
     script:
     """
-    fastqc -o . --nogroup $fastq_L_trim && unzip ${fastq_L_name}_trim_fastqc.zip
-    fastqc -o . --nogroup $fastq_R_trim && unzip ${fastq_R_name}_trim_fastqc.zip
+    fastqc -o . --nogroup $fastq_L_trim
+    unzip ${fastq_L_name}_trim_fastqc.zip
+    fastqc -o . --nogroup $fastq_R_trim
+    unzip ${fastq_R_name}_trim_fastqc.zip
     """
 }
 
@@ -389,12 +393,12 @@ process run_RSeQC_readDist  {
     """
 }
 
-process run_RSeQC_geneBC  {
+process run_genebodycoverage  {
 
     tag {"${proj_id}"}
     publishDir "output_${proj_id}/${run_id}/05_rseqc/gene_bodycoverage", mode: 'copy', overwrite: true
 
-    container "docker.io/myoshimura080822/julia_genebodycoverage:1.2"
+    container "docker.io/yuifu/julia_genebodycoverage:1.3.1-4"
 
     input:
     val proj_id
