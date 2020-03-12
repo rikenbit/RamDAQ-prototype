@@ -11,7 +11,7 @@ chk_adapter = Channel
 
 chk_index = Channel
     .from(params.hisat2_index)
-    .map{file(it[1]+"*", checkIfExists: true)}
+    .map{file(it[1]+"/*", checkIfExists: true)}
     .ifEmpty { exit 1, "hisat2 index not found" }
 
 chk_chrsize = Channel
@@ -206,8 +206,10 @@ process run_hisat2 {
 
     if( pipeline_class == 'stranded' )
         """
-        hisat2 $option -x $index -U $fastq $strandedness | samtools view -bS - | samtools sort - -o ${fastq_name}_trim.sort.bam
+        hisat2 $option -x $index -U $fastq $strandedness -S ${fastq_name}_trim.sam
+        samtools view -bS ${fastq_name}_trim.sam | samtools sort - -o ${fastq_name}_trim.sort.bam
         samtools index ${fastq_name}_trim.sort.bam
+        rm ${fastq_name}_trim.sam
 
         bamtools filter -in ${fastq_name}_trim.sort.bam -out ${fastq_name}_trim.forward.bam -script ${scripts_dir}/bamtools_f_SE.json
         samtools index ${fastq_name}_trim.forward.bam
@@ -217,8 +219,10 @@ process run_hisat2 {
         """
     else if( pipeline_class == 'unstranded' )
         """
-        hisat2 $option -x $index -U $fastq $strandedness | samtools view -bS - | samtools sort - -o ${fastq_name}_trim.sort.bam
+        hisat2 $option -x $index -U $fastq $strandedness -S ${fastq_name}_trim.sam
+        samtools view -bS ${fastq_name}_trim.sam | samtools sort - -o ${fastq_name}_trim.sort.bam
         samtools index ${fastq_name}_trim.sort.bam
+        rm ${fastq_name}_trim.sam
         """
 }
 
