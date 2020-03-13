@@ -11,7 +11,7 @@ chk_adapter = Channel
 
 chk_index = Channel
     .from(params.hisat2_index)
-    .map{file(it[1]+"/*", checkIfExists: true)}
+    .flatMap{file(it[1]+"*", checkIfExists: true)}
     .ifEmpty { exit 1, "hisat2 index not found" }
 
 chk_chrsize = Channel
