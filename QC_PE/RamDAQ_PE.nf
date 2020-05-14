@@ -313,7 +313,7 @@ featurecounts_conditions
 process run_featurecounts  {
 
     tag {"${proj_id}"}
-    publishDir "output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${metafeature_name}", mode: 'copy', overwrite: true
+    publishDir "output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${option_name}/${metafeature_name}", mode: 'copy', overwrite: true
 
     container "docker.io/myoshimura080822/hisat2_set:190611"
 
@@ -322,7 +322,7 @@ process run_featurecounts  {
     set chrom_size, pipeline_class, run_id, bam_name, file(bam_file), file(bai_files), option_name, option, metafeature_name, metafeature, gtf_name, file(gtf) from featurecounts_conditions_fcount
 
     output:
-    set run_id, gtf_name, metafeature_name, pipeline_class, bam_name, file("fcounts_${bam_name}_trim.txt"), file("fcounts_${bam_name}_trim.txt.summary") into featurecounts_output
+    set run_id, gtf_name, option_name, metafeature_name, pipeline_class, bam_name, file("fcounts_${bam_name}_trim.txt"), file("fcounts_${bam_name}_trim.txt.summary") into featurecounts_output
     file "fcounts_${bam_name}_trim.log"
     file "*_trim.txt" into fcounts_output_to_count
     
@@ -345,7 +345,7 @@ process collect_featurecounts_summary {
 
     input:
     val proj_id
-    set run_id, gtf_name, metafeature_name, pipeline_class, bam_name, file(fcounts_file), file(fcounts_summary_file) from featurecounts_output.groupTuple(by: [0,1,2])
+    set run_id, gtf_name, option_name, metafeature_name, pipeline_class, bam_name, file(fcounts_file), file(fcounts_summary_file) from featurecounts_output.groupTuple(by: [0,1,2,3])
     path summary_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_summary.py"
     path collectcounts_script_path from workflow.scriptFile.parent.parent + "/collect_output_scripts/collect_featurecounts_counts.py"
 
@@ -356,8 +356,8 @@ process collect_featurecounts_summary {
     script:
 
     """
-    python $summary_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${metafeature_name} summary_featurecounts_results_${gtf_name}_${metafeature_name}
-    python $collectcounts_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${metafeature_name} mergefcounts_${gtf_name}_${metafeature_name}
+    python $summary_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${option_name}/${metafeature_name} summary_featurecounts_results_${gtf_name}_${option_name}_${metafeature_name}
+    python $collectcounts_script_path $PWD/output_${proj_id}/${run_id}/07_featurecounts/${gtf_name}/${option_name}/${metafeature_name} mergefcounts_${gtf_name}_${option_name}_${metafeature_name}
     """
 }
 
