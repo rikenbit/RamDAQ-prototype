@@ -74,7 +74,7 @@ plot_totalseq <- function(plotdata, title, outdir, nonplot=NULL){
     geom_bar(alpha=0.7, stat="identity") +
     xlab("Sample") + ylab("TotalSeq") + 
     theme(axis.text.x=element_text(size=6, angle=90, hjust=1), legend.text=element_text(size=8)) +
-    ggtitle(paste(title, "total-seq of fastqc", sep=" "))
+    ggtitle(paste(title, "", sep=" "))
   return(g)
   #ggsave(file = paste0(outdir,"/fastqc_totalseq_",title,".png"), plot=g, dpi=100, width=12, height=5)
 
@@ -95,7 +95,7 @@ plot_perGC <- function(plotdata, title, outdir, nonplot=NULL){
     xlab("Sample")+ylab("%GC") +
     #scale_x_discrete(labels=plotdata$samplename) + 
     theme(axis.text.x=element_text(size=6, angle=90, hjust=1), legend.text=element_text(size=8)) +
-    ggtitle(paste(title, "perGC of fastqc", sep=" "))
+    ggtitle(paste(title, "", sep=" "))
   return(g)
   #ggsave(file = paste0(outdir,"/fastqc_perGC_",title,".png"), plot=g, dpi=100, width=12, height=5)
 }
@@ -126,7 +126,7 @@ plot_assignedgene_rate <- function(fastqcdata, readDistdata, title, outdir, ylim
     xlab("Sample")+ylab("Assigned gene rate") +
     #scale_x_discrete(labels=plotdata$x) + 
     theme(axis.text.x=element_text(size=6, angle=90, hjust=1), legend.text=element_text(size=8)) +
-    ggtitle(paste(title, "assigned gene rate", sep=" "))
+    ggtitle(paste(title, "", sep=" "))
   #ggsave(file = paste0(outdir,"/hisat2_alinedgene_rate_",title,".png"), plot=g, dpi=100, width=12, height=5)
   return(g)
 }
@@ -153,6 +153,7 @@ plot_readDist_summary <- function(plot_data, title, outdir, nonplot=NULL){
   g = ggplot(melt(plot_data),aes(x=id,y=value,fill=variable)) +
     geom_bar(stat="identity",position="stack",colour="gray32",show.legend=T) +
     xlab("dataset") + ylab("percent") +
+    ggtitle(title) +
     theme(axis.text.y=element_text(size=7), legend.text=element_text(size=8)) +
     coord_flip()
 
@@ -179,8 +180,8 @@ plot_geneBodyCov_heatmap <- function(rseqc_data,title,xaxis,outdir,nonplot=NULL,
       xlab("Gene body percentile (5'->3')") + ylab("Coverage") +
       geom_text(data=plot_data_t[plot_data_t$variable==xaxis,],
                 aes(label=id,colour=id),angle=90,vjust=0.5,hjust=1,show.legend=F) +
-      ggtitle(paste(title, "summary of gene body coverage", sep=" ")) +
-      theme(axis.text.x=element_blank(),legend.position = "none", plot.title=element_text(size=10,face="bold"))
+      ggtitle(title) +
+      theme(axis.text.x=element_blank(),legend.position = "none")
     return(g)
     #ggsave(file = paste0(outdir,"/geneBC_line_",title,".png"), plot=g, dpi=100, width=9, height=6)
   }else{
@@ -206,6 +207,7 @@ plot_bar_inferexp <- function(plot_data, title, outdir, nonplot=NULL){
   plot_data = melt(plot_data, id="name")
   g = ggplot(plot_data, aes(name, value, fill = variable)) +
     geom_bar(stat = "identity") +
+    ggtitle(title) +
     theme(axis.text.x = element_text(size=6, angle=90, hjust=1), axis.text.y=element_text(size=7), legend.text=element_text(size=8))
 
   return(g)
@@ -255,12 +257,36 @@ trim_countfc_sample <- function(data, exclude_id){
 
   #data = subset(data, !grepl("ERCC", Geneid))
   rownames(data) = data$Geneid
-  data = data[,-c(1,2,3,4,5,6,7)]
+  data = data[,-c(1,2,3,4,5,6,7), drop=FALSE]
   samplename = str_replace(colnames(data), "_trim", "")
   colnames(data) = c(samplename)
 
-  data = data[,!colnames(data) %in% exclude_id]
+  data = data[,!colnames(data) %in% exclude_id, drop=FALSE]
   return(data)
+}
+
+calc_tpm <- function(counts,len) {
+  x <- counts/len
+    return(t(t(x)*1e6/colSums(x)))
+}
+
+calc_tpm_counts <- function(counts, gene_length, exclude_name){
+
+    counts_trim = trim_countfc_sample(counts, exclude_name)
+    counts_trim$Geneid = rownames(counts_trim)
+
+    counts_tpm = dplyr::left_join(counts_trim, gene_length, by=c("Geneid"))
+    rownames(counts_tpm) = counts_tpm$Geneid
+
+    cat(paste0("before na_omit genenum: ", length(counts_tpm$length), "\n"))
+    cat(paste0("after na_omit genenum: ", length(na.omit(counts_tpm)$length), "\n"))
+
+    counts_tpm = calc_tpm(counts_tpm[,!colnames(counts_tpm) %in% c("Geneid","length"), drop=FALSE], as.numeric(counts_tpm$length))
+    counts_tpm = as.data.frame(counts_tpm)
+    counts_tpm_log = log10(counts_tpm+1)
+
+    return(list(tpm = counts_tpm, tpm_log = counts_tpm_log))
+
 }
 
 calc_rpkm_counts <- function(counts, gene_length, exclude_name){
@@ -314,28 +340,32 @@ panel.hist <- function(x, ...)
   rect(breaks[-nB], 0, breaks[-1], y, col="cyan", ...)
 }
 
-plot_detgene_bar <- function(counts_rpkm, counts_rpkm_log, nonplot=NULL){
+plot_detgene_bar <- function(counts, counts_log, ylim_max, title="", nonplot=NULL){
 
     if (!is.null(nonplot)){
-        counts_rpkm = counts_rpkm[,!colnames(counts_rpkm) %in% nonplot]
-        counts_rpkm_log = counts_rpkm_log[,!colnames(counts_rpkm_log) %in% nonplot]
+        counts = counts[,!colnames(counts) %in% nonplot, drop=FALSE]
+        counts_log = counts_log[,!colnames(counts_log) %in% nonplot, drop=FALSE]
     }
 
-    counts_rpkm_gene = counts_rpkm[!grepl("ERCC", rownames(counts_rpkm)),]
-    counts_detgenenum = data.frame(colSums(counts_rpkm_gene >1))
-    colnames(counts_detgenenum) = c("NumOfGenesRpkm")
+    counts_gene = counts[!grepl("ERCC", rownames(counts)),,drop=FALSE]
+    counts_detgenenum = data.frame(colSums(counts_gene >1))
+    colnames(counts_detgenenum) = c("NumOfGenes")
     counts_detgenenum$samplename = row.names(counts_detgenenum)
 
-    if (ncol(counts_rpkm_log) < 8){
-      pairs(counts_rpkm_log, lower.panel=panel.smooth, upper.panel=panel.cor, diag.panel=panel.hist)
+    if (ncol(counts_log) > 1 & ncol(counts_log) < 8){
+      pairs(counts_log, lower.panel=panel.smooth, upper.panel=panel.cor, diag.panel=panel.hist, main=title)
+    } else if(ncol(counts_log) == 1) {
+      cat(paste0("only one column in the countdata: ", title, "\n"))
     } else {
-      pairs(counts_rpkm_log[,sample(ncol(counts_rpkm_log), 8)], lower.panel=panel.smooth, upper.panel=panel.cor, diag.panel=panel.hist)
+      pairs(counts_log[,sample(ncol(counts_log), 8)], lower.panel=panel.smooth, upper.panel=panel.cor, diag.panel=panel.hist, main=title)
     }
 
-    g = ggplot(counts_detgenenum, aes(x=samplename,y=NumOfGenesRpkm)) +
+    g = ggplot(counts_detgenenum, aes(x=samplename,y=NumOfGenes)) +
         geom_bar(alpha=0.7, stat="identity") +
-        xlab("Sample") + ylab("Number of detected genes (rpkm>1)") +
-        theme(axis.text.x=element_text(size=6, angle=90, hjust=1.0))
+        xlab("Sample") + ylab("Number of detected genes (TPM>1)") +
+        ylim(0, ylim_max) + 
+        theme(axis.text.x=element_text(size=6, angle=90, hjust=1.0)) +
+        ggtitle(title)
     return(g)
 
 }
@@ -370,21 +400,26 @@ ggplot_2D <- function(dset, x, y, title, celltype, outname, label=F) {
 
 create_pca_tsne_umap_mode <- function(countdata, perplexity, mode, local_connectivity=1.0, n_neighbors=15){
 
-  if (mode=="pca"){
-    ### pca
-    data_pca = prcomp(t(countdata), scale = FALSE, center = TRUE)
-    data_pca_df = as.data.frame(data_pca$x)
-    return(list(data=data_pca, data_df=data_pca_df))
-  } else if (mode=="tsne") {
-    ### tSNE
-    data_tsne = Rtsne(t(countdata), dims=2, perplexity=perplexity)
-    data_tsne_df = as.data.frame(data_tsne$Y)
-    return(list(data=data_tsne, data_df=data_tsne_df))
-  } else {
-    ### UMAP
-    data_umap = umap(t(countdata), local_connectivity=local_connectivity, n_neighbors=n_neighbors)
-    data_umap_df = as.data.frame(data_umap$layout)
-    return(list(data=data_umap, data_df=data_umap_df))
+  if(ncol(countdata) == 1){
+    cat("No plot is shown when the number of samples is 1.\n")
+  } else { 
+
+    if (mode=="pca"){
+      ### pca
+      data_pca = prcomp(t(countdata), scale = FALSE, center = TRUE)
+      data_pca_df = as.data.frame(data_pca$x)
+      return(list(data=data_pca, data_df=data_pca_df))
+    } else if (mode=="tsne") {
+      ### tSNE
+      data_tsne = Rtsne(t(countdata), dims=2, perplexity=perplexity)
+      data_tsne_df = as.data.frame(data_tsne$Y)
+      return(list(data=data_tsne, data_df=data_tsne_df))
+    } else {
+      ### UMAP
+      data_umap = umap(t(countdata), local_connectivity=local_connectivity, n_neighbors=n_neighbors)
+      data_umap_df = as.data.frame(data_umap$layout)
+      return(list(data=data_umap, data_df=data_umap_df))
+    }
   }
 }
 

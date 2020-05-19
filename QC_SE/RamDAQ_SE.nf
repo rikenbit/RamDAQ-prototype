@@ -565,6 +565,7 @@ process execute_nbconvert {
     output:
     file "*.html"
     file "*.ipynb"
+    file "*TPM.txt"
 
     script:
     if( pipeline_class_forreport[0] == 'stranded' )
