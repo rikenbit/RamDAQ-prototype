@@ -340,7 +340,7 @@ panel.hist <- function(x, ...)
   rect(breaks[-nB], 0, breaks[-1], y, col="cyan", ...)
 }
 
-plot_detgene_bar <- function(counts, counts_log, ylim_max, title="", nonplot=NULL){
+plot_detgene_bar <- function(counts, counts_log, title="", nonplot=NULL){
 
     if (!is.null(nonplot)){
         counts = counts[,!colnames(counts) %in% nonplot, drop=FALSE]
@@ -355,7 +355,7 @@ plot_detgene_bar <- function(counts, counts_log, ylim_max, title="", nonplot=NUL
     if (ncol(counts_log) > 1 & ncol(counts_log) < 8){
       pairs(counts_log, lower.panel=panel.smooth, upper.panel=panel.cor, diag.panel=panel.hist, main=title)
     } else if(ncol(counts_log) == 1) {
-      cat(paste0("only one column in the countdata: ", title, "\n"))
+      cat(paste0("No plot is shown when the number of samples is 1.", "\n"))
     } else {
       pairs(counts_log[,sample(ncol(counts_log), 8)], lower.panel=panel.smooth, upper.panel=panel.cor, diag.panel=panel.hist, main=title)
     }
@@ -363,7 +363,6 @@ plot_detgene_bar <- function(counts, counts_log, ylim_max, title="", nonplot=NUL
     g = ggplot(counts_detgenenum, aes(x=samplename,y=NumOfGenes)) +
         geom_bar(alpha=0.7, stat="identity") +
         xlab("Sample") + ylab("Number of detected genes (TPM>1)") +
-        ylim(0, ylim_max) + 
         theme(axis.text.x=element_text(size=6, angle=90, hjust=1.0)) +
         ggtitle(title)
     return(g)
