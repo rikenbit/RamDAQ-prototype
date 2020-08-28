@@ -17,7 +17,7 @@ process run_bcl2fastq  {
     input:
     val proj_id
     val bso_dir
-    set run_id from run_ids
+    val run_id from run_ids
 
     script:
     def runfolder_dir = "${bso_dir}/${run_id}"
