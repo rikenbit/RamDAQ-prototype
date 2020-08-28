@@ -111,7 +111,7 @@ The following section in `*.config` file should be changed.
 - `project_id`: (string)
 - `run_ids`: (string)
 - `maxReadLength`: (int) Maximum read length to be retaiend after read trimming.
-    - Note: For Illumina sequencer data, the last nucleotide of sequenced read  (In practice, if read length of your FASTQ file is 51, 76, or 101, you should set `maxReadLength` to 50, 75, or 101, respectively)
+    - Note: For Illumina sequencer data, the last nucleotide of sequenced read  (In practice, if read length of your FASTQ file is 51, 76, or 101, you should set `maxReadLength` to 50, 75, or 10, respectively)
 - `minReadLength`: (int) Minimum read length to be retaiend after read trimming. We recommend to use the half of `readLength`.
 
 
