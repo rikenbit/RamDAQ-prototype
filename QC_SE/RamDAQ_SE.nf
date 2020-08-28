@@ -191,7 +191,7 @@ process run_hisat2 {
     publishDir "output_${proj_id}/${run_id}/04_hisat2", mode: 'copy', overwrite: true
 
     clusterOptions = '-S /bin/bash -l nc=8'
-    container "docker.io/myoshimura080822/hisat2_set:190611"
+    container "docker.io/myoshimura080822/hisat2_set:200717"
 
     input:
     val proj_id

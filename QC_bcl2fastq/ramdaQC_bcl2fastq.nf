@@ -2,8 +2,11 @@
 
 proj_id = params.project_id
 bso_dir = params.bso_dir
-run_ids = Channel.from(params.run_ids)
-          .map{[it[0]]}
+Channel.from(params.run_ids)
+    .map{it[0]}
+    .into{run_ids; run_id_print;}
+
+run_id_print.println()
 
 process run_bcl2fastq  {
 
