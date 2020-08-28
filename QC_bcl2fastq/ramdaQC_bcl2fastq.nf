@@ -1,17 +1,13 @@
 #!/usr/bin/env nextflow
 
-proj_id = params.project_id
-bso_dir = params.bso_dir
-Channel.from(params.run_ids)
-    .map{it[0]}
-    .into{run_ids; run_id_print;}
+proj_id = params.proj_id
 
-run_id_print.println()
+Channel.from(params.run_basedirs)
+    .into{run_basedirs; run_basedir_print;}
+
+run_basedir_print.println()
 
 process run_bcl2fastq  {
-
-    clusterOptions = '-S /bin/bash -l nc=8'
-    
     tag { "${run_id}"}
     publishDir "output_${proj_id}/${run_id}/01_fastq_files"
 
@@ -19,15 +15,12 @@ process run_bcl2fastq  {
 
     input:
     val proj_id
-    val bso_dir
-    val run_id from run_ids
+    set run_id, path(run_basedir) from run_basedirs
 
     script:
-    def runfolder_dir = "${bso_dir}/${run_id}"
     def output_dir = "output_${proj_id}/${run_id}/01_fastq_files" 
 
     """
-    bcl2fastq --no-lane-splitting --runfolder-dir $runfolder_dir --interop-dir $runfolder_dir/InterOp --input-dir $runfolder_dir/Data/Intensities/BaseCalls --sample-sheet $runfolder_dir/SampleSheet.csv --output-dir $PWD/$output_dir --stats-dir $PWD/$output_dir/Stats --reports-dir $PWD/$output_dir/Reports && rm -rf $PWD/$output_dir/Undetermined*
+    bcl2fastq --no-lane-splitting --runfolder-dir $run_basedir --interop-dir $run_basedir/InterOp --input-dir $run_basedir/Data/Intensities/BaseCalls --sample-sheet $run_basedir/SampleSheet.csv --output-dir $PWD/$output_dir --stats-dir $PWD/$output_dir/Stats --reports-dir $PWD/$output_dir/Reports && rm -rf $PWD/$output_dir/Undetermined*
     """
 }
-
