@@ -402,7 +402,7 @@ process run_genebodycoverage  {
     tag {"${proj_id}"}
     publishDir "output_${proj_id}/${run_id}/05_rseqc/gene_bodycoverage", mode: 'copy', overwrite: true
 
-    container "docker.io/yuifu/julia_genebodycoverage:1.3.1-4"
+    container "yuifu/readcoverage.jl:0.1.2"
 
     input:
     val proj_id
@@ -413,9 +413,8 @@ process run_genebodycoverage  {
     file "*.geneBodyCoverage.txt" into geneBC_output_to_count
 
     script:
-    fileName = bam_file.baseName
     """
-    julia /opt/run.jl $bam_file $bed_file ${fileName}
+    julia /opt/run.jl relcov $bam_file $bed_file ${bam_file.baseName}
     """
 }
 
