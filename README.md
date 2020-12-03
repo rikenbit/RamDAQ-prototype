@@ -1,4 +1,5 @@
-# RamDAQ-prototype
+# RamDAQ-prototype is discontinued. Please use [ramdaq](https://github.com/rikenbit/ramdaq) instead!
+
 RamDAQ is a computational pipeline for quality control (QC) of RamDA-seq experiments.
 
 RamDA-seq is a single-cell total RNA sequencing method. Publication is [here](https://doi.org/10.1038/s41467-018-02866-0). The detailed protocol is [here](https://bit.riken.jp/protocols/ramda-seq/) and [kit is available from Toyobo](https://www.toyobo-global.com/news/2019/release_105.html).
